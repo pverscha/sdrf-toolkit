@@ -1,0 +1,50 @@
+name: Build Ontology Indexes
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'  # 1st of each month at midnight UTC
+  workflow_dispatch:       # manual trigger
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: pipelines/ontology-indexing-pipeline
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Run ontology indexing pipeline
+        run: node --max-old-space-size=6144 dist/index.js --output-dir ./output --force
+
+      - name: Capture build date
+        id: build-date
+        run: echo "value=$(date -u '+%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="indexes-${{ steps.build-date.outputs.value }}"
+          gh release delete "$TAG" --cleanup-tag --yes 2>/dev/null || true
+          gh release create "$TAG" \
+            --title "Ontology Indexes ${{ steps.build-date.outputs.value }}" \
+            --notes "Pre-built ontology indexes — ${{ steps.build-date.outputs.value }}. See manifest.json for per-ontology versions." \
+            output/*.json.gz output/manifest.json output/checksums.sha256

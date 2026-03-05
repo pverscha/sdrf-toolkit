@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "fast-xml-parser": "5.3.8",
+    "fast-xml-parser": "^5.3.8",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {

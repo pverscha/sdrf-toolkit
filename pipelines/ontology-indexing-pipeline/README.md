@@ -503,7 +503,7 @@ jobs:
 ### Recommended Python Project Structure
 
 ```
-pipeline/
+ontology-indexing-pipeline/
 ├── ontology-sources.yaml             # Ontology registry (see above)
 ├── ncbitaxon-species-allowlist.txt   # Species to keep in pruned NCBITaxon
 ├── scripts/

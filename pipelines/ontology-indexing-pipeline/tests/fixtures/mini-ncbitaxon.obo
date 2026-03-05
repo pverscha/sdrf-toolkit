@@ -1,0 +1,92 @@
+format-version: 1.4
+data-version: releases/2024-12-15
+ontology: ncbitaxon
+
+[Term]
+id: NCBITaxon:1
+name: root
+property_value: has_rank NCBITaxon:no_rank
+
+[Term]
+id: NCBITaxon:131567
+name: cellular organisms
+is_a: NCBITaxon:1 ! root
+property_value: has_rank NCBITaxon:no_rank
+
+[Term]
+id: NCBITaxon:2759
+name: Eukaryota
+is_a: NCBITaxon:131567 ! cellular organisms
+property_value: has_rank NCBITaxon:superkingdom
+
+[Term]
+id: NCBITaxon:33154
+name: Opisthokonta
+is_a: NCBITaxon:2759 ! Eukaryota
+property_value: has_rank NCBITaxon:no_rank
+
+[Term]
+id: NCBITaxon:33208
+name: Metazoa
+is_a: NCBITaxon:33154 ! Opisthokonta
+property_value: has_rank NCBITaxon:kingdom
+
+[Term]
+id: NCBITaxon:7742
+name: Vertebrata
+is_a: NCBITaxon:33208 ! Metazoa
+property_value: has_rank NCBITaxon:phylum
+
+[Term]
+id: NCBITaxon:40674
+name: Mammalia
+is_a: NCBITaxon:7742 ! Vertebrata
+property_value: has_rank NCBITaxon:class
+
+[Term]
+id: NCBITaxon:9526
+name: Catarrhini
+is_a: NCBITaxon:40674 ! Mammalia
+property_value: has_rank NCBITaxon:parvorder
+
+[Term]
+id: NCBITaxon:9604
+name: Hominidae
+is_a: NCBITaxon:9526 ! Catarrhini
+property_value: has_rank NCBITaxon:family
+
+[Term]
+id: NCBITaxon:207598
+name: Homininae
+is_a: NCBITaxon:9604 ! Hominidae
+property_value: has_rank NCBITaxon:subfamily
+
+[Term]
+id: NCBITaxon:9605
+name: Homo
+is_a: NCBITaxon:207598 ! Homininae
+property_value: has_rank NCBITaxon:genus
+
+[Term]
+id: NCBITaxon:9606
+name: Homo sapiens
+is_a: NCBITaxon:9605 ! Homo
+property_value: has_rank NCBITaxon:species
+
+[Term]
+id: NCBITaxon:862507
+name: Mus
+is_a: NCBITaxon:40674 ! Mammalia
+property_value: has_rank NCBITaxon:genus
+
+[Term]
+id: NCBITaxon:10090
+name: Mus musculus
+is_a: NCBITaxon:862507 ! Mus
+property_value: has_rank NCBITaxon:species
+
+[Term]
+id: NCBITaxon:9999
+name: some random species not in allowlist
+is_a: NCBITaxon:7742 ! Vertebrata
+property_value: has_rank NCBITaxon:species

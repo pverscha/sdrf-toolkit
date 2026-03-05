@@ -1,0 +1,145 @@
+# NCBITaxon species allowlist for pruned index generation
+# One accession per line. Lines starting with # are comments.
+# Includes common model organisms used in proteomics/SDRF submissions.
+
+# ── Primates ──
+NCBITaxon:9606
+NCBITaxon:9598
+NCBITaxon:9544
+NCBITaxon:9541
+NCBITaxon:60711
+NCBITaxon:9483
+NCBITaxon:30608
+
+# ── Rodents ──
+NCBITaxon:10090
+NCBITaxon:10116
+NCBITaxon:10029
+NCBITaxon:10036
+NCBITaxon:10096
+
+# ── Other mammals ──
+NCBITaxon:9913
+NCBITaxon:9823
+NCBITaxon:9615
+NCBITaxon:9986
+NCBITaxon:9796
+NCBITaxon:9685
+NCBITaxon:9940
+NCBITaxon:9925
+NCBITaxon:9739
+NCBITaxon:9669
+NCBITaxon:37347
+NCBITaxon:9258
+NCBITaxon:13616
+NCBITaxon:9371
+NCBITaxon:9361
+
+# ── Birds ──
+NCBITaxon:9031
+
+# ── Fish ──
+NCBITaxon:7955
+
+# ── Amphibians ──
+NCBITaxon:8355
+NCBITaxon:8364
+
+# ── Reptiles ──
+NCBITaxon:28377
+
+# ── Insects ──
+NCBITaxon:7227
+NCBITaxon:7165
+NCBITaxon:7159
+NCBITaxon:7070
+NCBITaxon:7091
+NCBITaxon:7460
+NCBITaxon:7176
+NCBITaxon:6945
+
+# ── Nematodes ──
+NCBITaxon:6239
+NCBITaxon:54126
+
+# ── Other invertebrates ──
+NCBITaxon:7719
+NCBITaxon:7668
+NCBITaxon:6183
+NCBITaxon:6279
+NCBITaxon:6334
+NCBITaxon:225164
+NCBITaxon:283909
+NCBITaxon:6325
+NCBITaxon:400682
+NCBITaxon:10228
+NCBITaxon:45351
+NCBITaxon:6087
+
+# ── Plants ──
+NCBITaxon:3702
+NCBITaxon:4577
+NCBITaxon:4530
+NCBITaxon:4565
+NCBITaxon:4513
+NCBITaxon:4558
+NCBITaxon:3880
+NCBITaxon:4081
+NCBITaxon:4113
+NCBITaxon:4097
+NCBITaxon:3055
+NCBITaxon:3218
+NCBITaxon:3067
+
+# ── Fungi ──
+NCBITaxon:4932
+NCBITaxon:559292
+NCBITaxon:4896
+NCBITaxon:5476
+NCBITaxon:5141
+NCBITaxon:746128
+NCBITaxon:5061
+NCBITaxon:4922
+NCBITaxon:28985
+
+# ── Bacteria ──
+NCBITaxon:562
+NCBITaxon:83333
+NCBITaxon:1423
+NCBITaxon:1280
+NCBITaxon:1282
+NCBITaxon:1313
+NCBITaxon:727
+NCBITaxon:287
+NCBITaxon:90371
+NCBITaxon:210
+NCBITaxon:1639
+NCBITaxon:1496
+NCBITaxon:197
+NCBITaxon:1351
+NCBITaxon:2104
+NCBITaxon:100226
+NCBITaxon:1773
+NCBITaxon:485
+NCBITaxon:666
+NCBITaxon:632
+NCBITaxon:315277
+NCBITaxon:782
+
+# ── Archaea ──
+NCBITaxon:2190
+NCBITaxon:2261
+NCBITaxon:69014
+NCBITaxon:33909
+NCBITaxon:64091
+NCBITaxon:2234
+NCBITaxon:187420
+
+# ── Protozoa / Parasites ──
+NCBITaxon:5833
+NCBITaxon:5811
+NCBITaxon:5691
+NCBITaxon:5664
+NCBITaxon:5755
+NCBITaxon:44689
+NCBITaxon:5762

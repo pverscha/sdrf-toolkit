@@ -1,0 +1,53 @@
+format-version: 1.4
+data-version: releases/2024-12-01
+ontology: mondo
+default-namespace: MONDO
+
+[Term]
+id: MONDO:0000001
+name: disease
+
+[Term]
+id: MONDO:0005070
+name: metabolic disease
+is_a: MONDO:0000001 ! disease
+
+[Term]
+id: MONDO:0005015
+name: diabetes mellitus
+synonym: "diabetes" EXACT []
+synonym: "DM" EXACT [MONDO:equivalentTo]
+synonym: "sugar diabetes" RELATED []
+is_a: MONDO:0005070 ! metabolic disease
+xref: DOID:9351
+xref: EFO:0000400
+
+[Term]
+id: MONDO:0099999
+name: term with escaped synonym
+synonym: "5\"10\" measurement" EXACT []
+
+[Term]
+id: MONDO:0000100
+name: obsolete disease
+is_obsolete: true
+replaced_by: MONDO:0005015
+
+[Term]
+id: DOID:9351
+name: imported term from DOID
+is_a: DOID:4 ! disease
+
+[Term]
+id: MONDO:0000200
+name: multi-parent term
+is_a: MONDO:0005015 ! diabetes mellitus
+is_a: MONDO:0005070 ! metabolic disease
+
+[Typedef]
+id: RO:0002573
+name: has modifier
+
+[Term]
+id: MONDO:0000999
+name: final term at EOF

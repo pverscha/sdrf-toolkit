@@ -1,0 +1,198 @@
+# ontology-sources.yaml
+# Defines all ontologies to be indexed, their source URLs, and parsing strategy.
+
+ontologies:
+  - id: mondo
+    full_name: Monarch Disease Ontology
+    default_prefix: MONDO
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/mondo.obo
+    format: obo
+    notes: null
+
+  - id: efo
+    full_name: Experimental Factor Ontology
+    default_prefix: EFO
+    additional_prefixes: []
+    source_url: http://www.ebi.ac.uk/efo/efo.obo
+    format: obo
+    notes: null
+
+  - id: doid
+    full_name: Human Disease Ontology
+    default_prefix: DOID
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/doid.obo
+    format: obo
+    notes: null
+
+  - id: cl
+    full_name: Cell Ontology
+    default_prefix: CL
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/cl.obo
+    format: obo
+    notes: null
+
+  - id: clo
+    full_name: Cell Line Ontology
+    default_prefix: CLO
+    additional_prefixes: []
+    source_url: https://raw.githubusercontent.com/CLO-ontology/CLO/master/src/ontology/clo_merged.owl
+    format: obo
+    notes: null
+
+  - id: uberon
+    full_name: Uber-anatomy Ontology
+    default_prefix: UBERON
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/uberon.obo
+    format: obo
+    notes: null
+
+  - id: pato
+    full_name: Phenotype And Trait Ontology
+    default_prefix: PATO
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/pato.obo
+    format: obo
+    notes: null
+
+  - id: ms
+    full_name: PSI Mass Spectrometry Ontology
+    default_prefix: MS
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/ms.obo
+    format: obo
+    notes: null
+
+  - id: mod
+    full_name: PSI Protein Modification Ontology
+    default_prefix: MOD
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/mod.obo
+    format: obo
+    notes: null
+
+  - id: pride
+    full_name: PRIDE Controlled Vocabulary
+    default_prefix: PRIDE
+    additional_prefixes: []
+    source_url: https://raw.githubusercontent.com/PRIDE-Utilities/pride-ontology/master/pride_cv.obo
+    format: obo
+    notes: Hosted on GitHub, not OBO Foundry.
+
+  - id: chebi
+    full_name: Chemical Entities of Biological Interest
+    default_prefix: CHEBI
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/chebi.obo
+    format: obo
+    notes: Large ontology (~170K terms). May require increased memory for parsing.
+
+  - id: ncbitaxon
+    full_name: NCBI Taxonomy
+    default_prefix: NCBITaxon
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/ncbitaxon.obo
+    format: obo
+    pruning:
+      enabled: true
+      strategy: ancestor_chain
+      # Produce both a full and a pruned variant.
+      # The pruned variant keeps only terms at genus level and above,
+      # plus any species explicitly listed in the species_allowlist file.
+      species_allowlist: ncbitaxon-species-allowlist.txt
+    notes: >
+      Very large (~2.4M terms). Produces two variants: full and pruned.
+      The pruned variant is recommended for most use cases.
+
+  - id: hp
+    full_name: Human Phenotype Ontology
+    default_prefix: HP
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/hp.obo
+    format: obo
+    notes: null
+
+  - id: mp
+    full_name: Mammalian Phenotype Ontology
+    default_prefix: MP
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/mp.obo
+    format: obo
+    notes: null
+
+  - id: hancestro
+    full_name: Human Ancestry Ontology
+    default_prefix: HANCESTRO
+    additional_prefixes: []
+    source_url: https://raw.githubusercontent.com/EBISPOT/hancestro/main/hancestro.owl
+    format: obo
+    notes: null
+
+  - id: fbbt
+    full_name: Drosophila Gross Anatomy Ontology
+    default_prefix: FBbt
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/fbbt.obo
+    format: obo
+    notes: null
+
+  - id: po
+    full_name: Plant Ontology
+    default_prefix: PO
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/po.obo
+    format: obo
+    notes: null
+
+  - id: zfa
+    full_name: Zebrafish Anatomy Ontology
+    default_prefix: ZFA
+    additional_prefixes: []
+    source_url: https://raw.githubusercontent.com/ZFIN/zebrafish-anatomical-ontology/refs/heads/master/zfa-full.obo
+    format: obo
+    notes: null
+
+  - id: zfs
+    full_name: Zebrafish Developmental Stages Ontology
+    default_prefix: ZFS
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/zfs.obo
+    format: obo
+    notes: null
+
+  - id: fbdv
+    full_name: Drosophila Development Ontology
+    default_prefix: FBdv
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/fbdv.obo
+    format: obo
+    notes: null
+
+  - id: rso
+    full_name: Rat Strain Ontology
+    default_prefix: RS
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/rs.obo
+    format: obo
+    notes: null
+
+  - id: bto
+    full_name: BRENDA Tissue Ontology
+    default_prefix: BTO
+    additional_prefixes: []
+    source_url: http://purl.obolibrary.org/obo/bto.obo
+    format: obo
+    notes: null
+
+  - id: unimod
+    full_name: Unimod Protein Modifications
+    default_prefix: UNIMOD
+    additional_prefixes: []
+    source_url: http://www.unimod.org/xml/unimod.xml
+    format: unimod_xml
+    notes: >
+      Unimod uses its own XML format, NOT OBO/OWL.
+      Requires a dedicated parser (see "Special Parsers" section in README).

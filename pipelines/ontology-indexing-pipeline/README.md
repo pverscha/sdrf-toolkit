@@ -277,7 +277,7 @@ The parsing step is format-dependent. The pipeline must support at minimum two p
 
 #### OBO Parser (used by most ontologies)
 
-**Recommended library:** Python `fastobo` or `pronto`.
+The OBO parser is implemented in TypeScript using `node:readline` for streaming line-by-line processing.
 
 For each OBO file, extract the following per term stanza (`[Term]`):
 
@@ -479,16 +479,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: "3.12"
+          node-version: "20"
 
       - name: Install dependencies
-        run: pip install fastobo pronto pyyaml
+        run: npm ci
 
       - name: Fetch and build indexes
-        run: python scripts/build_indexes.py
+        run: node --max-old-space-size=8192 dist/index.js
 
       - name: Verify checksums
         run: cd output && sha256sum -c checksums.sha256
@@ -500,36 +500,40 @@ jobs:
           files: output/*
 ```
 
-### Recommended Python Project Structure
+### TypeScript Project Structure
 
 ```
 ontology-indexing-pipeline/
 ├── ontology-sources.yaml             # Ontology registry (see above)
 ├── ncbitaxon-species-allowlist.txt   # Species to keep in pruned NCBITaxon
-├── scripts/
-│   ├── build_indexes.py              # Main entry point
-│   ├── fetch.py                      # Download source files with caching
-│   ├── parsers/
-│   │   ├── __init__.py
-│   │   ├── obo_parser.py            # OBO format → OntologyTermEntry list
-│   │   └── unimod_parser.py         # Unimod XML → OntologyTermEntry list
-│   ├── pruning.py                    # NCBITaxon pruning logic
-│   ├── index_builder.py             # Assemble OntologyIndexFile + gzip
-│   ├── manifest_builder.py          # Generate manifest.json + checksums.sha256
-│   └── utils.py                      # Shared helpers (hashing, version extraction)
+├── package.json                      # ESM package with tsx/typescript devDeps
+├── tsconfig.json                     # target: ES2022, module: NodeNext
+├── src/
+│   ├── index.ts                      # CLI entry point (node:util parseArgs)
+│   ├── pipeline.ts                   # Orchestrates per-ontology fetch→parse→build
+│   ├── types.ts                      # Shared interfaces
+│   ├── utils.ts                      # sha256, ensureDir, cleanOboVersion, log
+│   ├── fetch.ts                      # fetchWithCache with ETag/Last-Modified
+│   ├── pruning.ts                    # NCBITaxon BFS ancestor pruning
+│   ├── index-builder.ts              # Assemble OntologyIndexFile + streaming gzip
+│   ├── manifest-builder.ts           # Generate manifest.json + checksums.sha256
+│   └── parsers/
+│       ├── obo-parser.ts             # OBO format → OntologyTermEntry[] (readline)
+│       └── unimod-parser.ts          # Unimod XML → OntologyTermEntry[] (fast-xml-parser)
+├── dist/                             # Compiled output (gitignored)
 ├── output/                           # Build artifacts (gitignored)
 │   ├── manifest.json
 │   ├── mondo.json.gz
 │   ├── efo.json.gz
 │   └── ...
-├── tests/
-│   ├── test_obo_parser.py
-│   ├── test_unimod_parser.py
-│   ├── test_pruning.py
-│   └── fixtures/                     # Small test OBO/XML files
-│       ├── mini-mondo.obo
-│       └── mini-unimod.xml
-└── requirements.txt
+└── tests/
+    ├── fixtures/
+    │   ├── mini-mondo.obo
+    │   ├── mini-ncbitaxon.obo
+    │   └── mini-unimod.xml
+    ├── obo-parser.test.ts
+    ├── unimod-parser.test.ts
+    └── pruning.test.ts
 ```
 
 ---

@@ -1,0 +1,23 @@
+{
+  "name": "@sdrf-toolkit/ontology-indexing-pipeline",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Pipeline to fetch and index ontology source files into .json.gz index files consumed by @sdrf-toolkit/ontology-lookup",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node --max-old-space-size=8192 dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^4.3.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

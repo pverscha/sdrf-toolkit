@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unimod xmlns="http://www.unimod.org/xmlns/schema/unimod_2"
+        majorVersion="2" minorVersion="5">
+  <elements>
+    <elem title="H" full_name="Hydrogen" avge_mass="1.007940" mono_mass="1.007825" />
+    <elem title="O" full_name="Oxygen" avge_mass="15.9994" mono_mass="15.994915" />
+  </elements>
+  <modifications>
+    <mod title="Acetyl"
+         full_name="Acetylation"
+         record_id="1"
+         approved="1">
+      <specificity hidden="0" site="K" position="Anywhere" classification="Post-translational" />
+      <delta avge_mass="42.0106" mono_mass="42.010565" composition="H(2) C(2) O" />
+      <alt_name>Acetylation</alt_name>
+    </mod>
+    <mod title="Oxidation"
+         full_name="Oxidation or Hydroxylation"
+         record_id="35"
+         approved="1">
+      <specificity hidden="0" site="M" position="Anywhere" classification="Post-translational" />
+      <delta avge_mass="15.9994" mono_mass="15.994915" composition="O" />
+    </mod>
+    <mod title="Unapproved"
+         full_name="Some unapproved modification"
+         record_id="999"
+         approved="0">
+      <delta avge_mass="1.0" mono_mass="1.0" composition="X" />
+    </mod>
+    <mod title="Phospho"
+         full_name="Phosphorylation"
+         record_id="21"
+         approved="1">
+      <specificity hidden="0" site="S" position="Anywhere" classification="Post-translational" />
+      <delta avge_mass="79.9663" mono_mass="79.966331" composition="H O(3) P" />
+      <alt_name>Phosphorylation</alt_name>
+      <alt_name>Phospho</alt_name>
+    </mod>
+    <mod title="Carbamidomethyl"
+         full_name="Iodoacetamide derivative"
+         record_id="4"
+         approved="1">
+      <specificity hidden="0" site="C" position="Anywhere" classification="Alkylated" />
+      <delta avge_mass="57.0215" mono_mass="57.021464" composition="H(3) C(2) N O" />
+    </mod>
+  </modifications>
+  <amino_acids>
+    <aa title="A" full_name="Alanine" avge_mass="71.0788" mono_mass="71.03711" />
+  </amino_acids>
+</unimod>

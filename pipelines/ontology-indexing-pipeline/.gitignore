@@ -27,3 +27,6 @@ data/
 
 # Logs
 *.log
+
+data/
+output/

@@ -1,0 +1,29 @@
+# Node / Yarn
+node_modules/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# TypeScript build output
+dist/
+build/
+*.tsbuildinfo
+
+# Vite
+.vite/
+.cache/
+
+# Pipeline-specific data / artifacts
+data/
+*.index
+*.db
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log

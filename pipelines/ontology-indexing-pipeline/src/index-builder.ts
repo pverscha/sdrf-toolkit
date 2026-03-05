@@ -23,10 +23,6 @@ import { ensureDir, log, sha256OfFile } from "./utils.js";
  * The `meta.termCount` in the output reflects only non-obsolete terms so consumers can
  * display an accurate "active term" count; obsolete terms are still written to `terms[]`
  * so lookups by accession continue to work for deprecated entries.
- *
- * After writing, the file is decompressed and parsed in-memory to verify the roundtrip
- * produced the expected term count. A mismatch logs a warning rather than throwing,
- * because the file is still usable and a crash here would discard all earlier work.
  */
 export async function buildIndex(
   config: OntologySourceConfig,
@@ -71,9 +67,6 @@ export async function buildIndex(
 
   await pipeline(readable, gzip, ws);
 
-  // Gzip roundtrip verification
-  await verifyGzip(filePath, terms.length);
-
   const sha256 = await sha256OfFile(filePath);
   const { size } = await stat(filePath);
 
@@ -85,32 +78,4 @@ export async function buildIndex(
     sha256,
     termCount: terms.length,
   };
-}
-
-/**
- * Decompresses the written file and counts its terms as a sanity check.
- * This catches silent failures such as a truncated gzip stream or a JSON serialisation bug
- * that would otherwise only surface at read-time in the consuming package.
- */
-async function verifyGzip(filePath: string, expectedCount: number): Promise<void> {
-  const chunks: Buffer[] = [];
-
-  await new Promise<void>((resolve, reject) => {
-    const rs = createReadStream(filePath);
-    const gz = createGunzip();
-    rs.pipe(gz);
-    gz.on("data", (chunk: Buffer) => chunks.push(chunk));
-    gz.on("end", resolve);
-    gz.on("error", reject);
-    rs.on("error", reject);
-  });
-
-  const json = Buffer.concat(chunks).toString("utf-8");
-  const parsed = JSON.parse(json) as OntologyIndexFile;
-
-  if (parsed.terms.length !== expectedCount) {
-    log.warn(
-      `  Roundtrip verification FAILED: expected ${expectedCount} terms, got ${parsed.terms.length}`
-    );
-  }
 }

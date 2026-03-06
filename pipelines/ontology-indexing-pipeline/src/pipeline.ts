@@ -224,6 +224,10 @@ async function processOntology(
 
   log.info(`  ${terms.length} valid terms after validation`);
 
+  if (terms.length === 0) {
+    throw new Error(`Produced 0 valid terms after validation`);
+  }
+
   // NCBITaxon: produce full + pruned variants
   if (config.id === "ncbitaxon" && config.pruning?.enabled) {
     const allowlist = await loadAllowlist(allowlistPath);
@@ -239,6 +243,10 @@ async function processOntology(
 
     const prunedTerms = pruneNCBITaxon(terms, rankMap!, allowlist);
     log.info(`  Pruned to ${prunedTerms.length} terms`);
+
+    if (prunedTerms.length === 0) {
+      throw new Error(`Pruned NCBITaxon produced 0 terms — check the species allowlist`);
+    }
 
     const prunedResult = await buildIndex(
       config,
@@ -359,4 +367,11 @@ export async function runPipeline(
   const failed = results.filter((r) => r.error).length;
 
   log.info(`\nPipeline complete: ${succeeded} built, ${skipped} skipped, ${failed} failed`);
+
+  if (failed > 0) {
+    const failedIds = results.filter((r) => r.error).map((r) => r.id);
+    throw new Error(
+      `${failed} ontolog${failed === 1 ? "y" : "ies"} failed to process: ${failedIds.join(", ")}`
+    );
+  }
 }

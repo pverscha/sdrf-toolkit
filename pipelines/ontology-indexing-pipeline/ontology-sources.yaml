@@ -5,7 +5,7 @@ ontologies:
   - id: mondo
     full_name: Monarch Disease Ontology
     default_prefix: MONDO
-    additional_prefixes: [BFO, CHEBI, CHR< CL, CLM, ECTO, ENVO, FOODON, GO, HP, HsapDb, IAO, MAXO, MF, MFOMD, NBO, NCBITaxon, NCIT, PATO, SO, UBERON]
+    additional_prefixes: [BFO, CHEBI, CHR, CL, CLM, ECTO, ENVO, FOODON, GO, HP, HsapDb, IAO, MAXO, MF, MFOMD, NBO, NCBITaxon, NCIT, PATO, SO, UBERON]
     source_url: http://purl.obolibrary.org/obo/mondo.obo
     format: obo
     notes: null
@@ -37,9 +37,9 @@ ontologies:
   - id: clo
     full_name: Cell Line Ontology
     default_prefix: CLO
-    additional_prefixes: []
+    additional_prefixes: [BFO, CARO, CHEBI, CL, DOID, GO, IAO, NCBITaxon, OBI, PATO, PR, UBERON, EFO]
     source_url: https://raw.githubusercontent.com/CLO-ontology/CLO/master/src/ontology/clo_merged.owl
-    format: obo
+    format: owl
     notes: null
 
   - id: uberon
@@ -128,7 +128,7 @@ ontologies:
     default_prefix: HANCESTRO
     additional_prefixes: []
     source_url: https://raw.githubusercontent.com/EBISPOT/hancestro/main/hancestro.owl
-    format: obo
+    format: owl
     notes: null
 
   - id: fbbt

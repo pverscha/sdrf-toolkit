@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://purl.obolibrary.org/obo/hancestro.owl#"
+     xml:base="http://purl.obolibrary.org/obo/hancestro.owl"
+     xmlns:obo="http://purl.obolibrary.org/obo/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:oboInOwl="http://www.geneontology.org/formats/oboInOwl#">
+
+    <owl:Ontology rdf:about="http://purl.obolibrary.org/obo/hancestro.owl">
+        <owl:versionIRI rdf:resource="http://purl.obolibrary.org/obo/hancestro/releases/2024-06-01/hancestro.owl"/>
+        <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">2024-06-01</owl:versionInfo>
+    </owl:Ontology>
+
+    <!-- Simple term: accession, label, parent -->
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0001">
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">ancestry category</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0003">
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">European</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/HANCESTRO_0001"/>
+    </owl:Class>
+
+    <!-- Term with exact + related synonyms and xrefs -->
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0005">
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">African</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/HANCESTRO_0001"/>
+        <oboInOwl:hasExactSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">African ancestry</oboInOwl:hasExactSynonym>
+        <oboInOwl:hasRelatedSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sub-Saharan African</oboInOwl:hasRelatedSynonym>
+        <oboInOwl:hasBroadSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">African group</oboInOwl:hasBroadSynonym>
+        <oboInOwl:hasNarrowSynonym rdf:datatype="http://www.w3.org/2001/XMLSchema#string">West African</oboInOwl:hasNarrowSynonym>
+        <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">MeSH:D000352</oboInOwl:hasDbXref>
+        <oboInOwl:hasDbXref rdf:datatype="http://www.w3.org/2001/XMLSchema#string">SNOMEDCT:413464008</oboInOwl:hasDbXref>
+    </owl:Class>
+
+    <!-- Obsolete term with replaced-by -->
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0010">
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">obsolete African American</rdfs:label>
+        <owl:deprecated rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:deprecated>
+        <obo:IAO_0100001 rdf:resource="http://purl.obolibrary.org/obo/HANCESTRO_0005"/>
+    </owl:Class>
+
+    <!-- Foreign-prefix term: should be discarded -->
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/OBI_0000070">
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">assay</rdfs:label>
+    </owl:Class>
+
+    <!-- Complex subClassOf with owl:Restriction — parent should be ignored -->
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0020">
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Asian</rdfs:label>
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/HANCESTRO_0001"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.obolibrary.org/obo/RO_0001000"/>
+                <owl:someValuesFrom rdf:resource="http://purl.obolibrary.org/obo/GAZ_00000542"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <!-- Anonymous class (no rdf:about): should be skipped -->
+    <owl:Class>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">anonymous term</rdfs:label>
+    </owl:Class>
+
+</rdf:RDF>

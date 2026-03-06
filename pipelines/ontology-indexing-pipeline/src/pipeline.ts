@@ -14,6 +14,7 @@ import { ensureDir, fileLog, initLogFile, log } from "./utils.js";
 import { fetchWithCache } from "./fetch.js";
 import { parseOboFile } from "./parsers/obo-parser.js";
 import { parseUnimodXml } from "./parsers/unimod-parser.js";
+import { parseOwlFile } from "./parsers/owl-parser.js";
 import { loadAllowlist, pruneNCBITaxon } from "./pruning.js";
 import { buildIndex } from "./index-builder.js";
 import { buildManifest } from "./manifest-builder.js";
@@ -133,7 +134,7 @@ async function processOntology(
   allowlistPath: string,
   force: boolean
 ): Promise<BuildResult> {
-  const ext = config.format === "unimod_xml" ? "xml" : "obo";
+  const ext = config.format === "unimod_xml" ? "xml" : config.format === "owl" ? "owl" : "obo";
   const sourceFile = join(dataDir, `${config.id}.${ext}`);
   const metaFile = join(dataDir, `${config.id}.cache.json`);
 
@@ -190,6 +191,28 @@ async function processOntology(
     const parsed = await parseUnimodXml(sourceFile);
     terms = parsed.terms;
     sourceVersion = parsed.sourceVersion || new Date().toISOString().slice(0, 10);
+  } else if (config.format === "owl") {
+    const parsed = await parseOwlFile(sourceFile, {
+      defaultPrefix: config.default_prefix,
+      additionalPrefixes: config.additional_prefixes,
+    });
+    terms = parsed.terms;
+    sourceVersion = parsed.sourceVersion || new Date().toISOString().slice(0, 10);
+
+    const { discardedByPrefix } = parsed;
+    if (discardedByPrefix.length > 0) {
+      const prefixCounts = new Map<string, number>();
+      for (const acc of discardedByPrefix) {
+        const prefix = acc.split(":")[0];
+        prefixCounts.set(prefix, (prefixCounts.get(prefix) ?? 0) + 1);
+      }
+      const summary = [...prefixCounts.entries()].map(([p, n]) => `${p}: ${n}`).join(", ");
+      log.warn(`[${config.id}] Discarded ${discardedByPrefix.length} cross-prefix terms (${summary})`);
+      fileLog.warn(`[${config.id}] Full list of ${discardedByPrefix.length} cross-prefix discarded accessions:`);
+      for (const acc of discardedByPrefix) {
+        fileLog.warn(`[${config.id}]   discarded: ${acc}`);
+      }
+    }
   } else {
     throw new Error(`Unknown format: ${String(config.format)}`);
   }

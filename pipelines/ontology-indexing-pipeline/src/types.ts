@@ -43,7 +43,7 @@ export interface OntologySourceConfig {
   default_prefix: string;
   additional_prefixes: string[];
   source_url: string;
-  format: "obo" | "unimod_xml";
+  format: "obo" | "unimod_xml" | "owl";
   pruning?: OntologyPruningConfig;
   notes?: string | null;
 }

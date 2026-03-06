@@ -5,7 +5,7 @@ ontologies:
   - id: mondo
     full_name: Monarch Disease Ontology
     default_prefix: MONDO
-    additional_prefixes: []
+    additional_prefixes: [BFO, CHEBI, CHR< CL, CLM, ECTO, ENVO, FOODON, GO, HP, HsapDb, IAO, MAXO, MF, MFOMD, NBO, NCBITaxon, NCIT, PATO, SO, UBERON]
     source_url: http://purl.obolibrary.org/obo/mondo.obo
     format: obo
     notes: null
@@ -13,7 +13,7 @@ ontologies:
   - id: efo
     full_name: Experimental Factor Ontology
     default_prefix: EFO
-    additional_prefixes: []
+    additional_prefixes: [AfPO, BFO, BTO, CHEBI, CL, CLO, DOID, ECTO, EO, FBbi, FBbt, FMA, GAZ, GO, GSSO, HANCESTRO, HP, MONDO, IAO, MP, MPATH, NCBITaxon, NCIT, OBA, OBI, OMIT, Orphanet, PATO, PO, PR, UBERON, UO, ZFA]
     source_url: http://www.ebi.ac.uk/efo/efo.obo
     format: obo
     notes: null
@@ -29,7 +29,7 @@ ontologies:
   - id: cl
     full_name: Cell Ontology
     default_prefix: CL
-    additional_prefixes: []
+    additional_prefixes: [BFO, CHEBI, CLM, CP, DHBA, GO, IAO, MBA, NCBITaxon, PATO, PR, STATO, UBERON]
     source_url: http://purl.obolibrary.org/obo/cl.obo
     format: obo
     notes: null
@@ -45,7 +45,7 @@ ontologies:
   - id: uberon
     full_name: Uber-anatomy Ontology
     default_prefix: UBERON
-    additional_prefixes: []
+    additional_prefixes: [CHEBI, CL, GO, NCBITaxon, PATO, PR]
     source_url: http://purl.obolibrary.org/obo/uberon.obo
     format: obo
     notes: null

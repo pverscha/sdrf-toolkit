@@ -15,6 +15,7 @@ export interface OboParseResult {
   terms: OntologyTermEntry[];
   sourceVersion: string;
   rankMap?: Map<string, string>;
+  discardedByPrefix: string[];
 }
 
 interface CurrentTerm {
@@ -67,10 +68,11 @@ export async function parseOboFile(
   options: OboParseOptions
 ): Promise<OboParseResult> {
   const { defaultPrefix, additionalPrefixes = [], collectRanks = false } = options;
-  const allowedPrefixes = [defaultPrefix, ...additionalPrefixes];
+  const allowedPrefixes = [defaultPrefix, ...additionalPrefixes].map((p) => p.toUpperCase());
 
   const terms: OntologyTermEntry[] = [];
   const rankMap = new Map<string, string>();
+  const discardedByPrefix: string[] = [];
   let sourceVersion = "";
 
   let state: ParserState = "header";
@@ -81,8 +83,11 @@ export async function parseOboFile(
   // or if its prefix belongs to a foreign ontology (imported terms).
   function flushTerm() {
     if (state !== "term" || !current.accession) return;
-    const prefix = current.accession.split(":")[0];
-    if (!allowedPrefixes.includes(prefix)) return;
+    const prefix = current.accession.split(":")[0].toUpperCase();
+    if (!allowedPrefixes.includes(prefix)) {
+      discardedByPrefix.push(current.accession);
+      return;
+    }
 
     terms.push({
       accession: current.accession,
@@ -175,5 +180,6 @@ export async function parseOboFile(
     terms,
     sourceVersion,
     rankMap: collectRanks ? rankMap : undefined,
+    discardedByPrefix,
   };
 }

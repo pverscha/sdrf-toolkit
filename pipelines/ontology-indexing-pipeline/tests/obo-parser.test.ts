@@ -58,6 +58,14 @@ describe("OBO Parser", () => {
     expect(doidTerm).toBeUndefined();
   });
 
+  it("tracks discarded accessions in discardedByPrefix", async () => {
+    const result = await parseOboFile(join(FIXTURES, "mini-mondo.obo"), {
+      defaultPrefix: "MONDO",
+    });
+    expect(result.discardedByPrefix).toContain("DOID:9351");
+    expect(result.discardedByPrefix.every((acc) => !acc.startsWith("MONDO:"))).toBe(true);
+  });
+
   it("marks obsolete terms and collects replacedBy", async () => {
     const result = await parseOboFile(join(FIXTURES, "mini-mondo.obo"), {
       defaultPrefix: "MONDO",
@@ -86,6 +94,15 @@ describe("OBO Parser", () => {
     const last = result.terms.find((t) => t.accession === "MONDO:0000999");
     expect(last).toBeDefined();
     expect(last!.label).toBe("final term at EOF");
+  });
+
+  it("matches prefixes case-insensitively", async () => {
+    const result = await parseOboFile(join(FIXTURES, "mini-mondo.obo"), {
+      defaultPrefix: "mondo", // lowercase — should still match MONDO:* accessions
+    });
+    const dm = result.terms.find((t) => t.accession === "MONDO:0005015");
+    expect(dm).toBeDefined();
+    expect(result.discardedByPrefix.every((acc) => !acc.startsWith("MONDO:"))).toBe(true);
   });
 
   it("skips [Typedef] stanzas", async () => {

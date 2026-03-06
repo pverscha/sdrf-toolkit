@@ -10,7 +10,7 @@ import type {
   OntologySourcesFile,
   OntologyTermEntry,
 } from "./types.js";
-import { ensureDir, log } from "./utils.js";
+import { ensureDir, fileLog, initLogFile, log } from "./utils.js";
 import { fetchWithCache } from "./fetch.js";
 import { parseOboFile } from "./parsers/obo-parser.js";
 import { parseUnimodXml } from "./parsers/unimod-parser.js";
@@ -36,6 +36,8 @@ function validateTerms(terms: OntologyTermEntry[], ontologyId: string): Ontology
     if (!term.accession || !term.label) {
       if (warned < 5) {
         log.warn(`[${ontologyId}] Term missing accession or label: ${JSON.stringify(term)}`);
+      } else {
+        fileLog.warn(`[${ontologyId}] Term missing accession or label: ${JSON.stringify(term)}`);
       }
       warned++;
       continue;
@@ -43,6 +45,8 @@ function validateTerms(terms: OntologyTermEntry[], ontologyId: string): Ontology
     if (!ACCESSION_RE.test(term.accession)) {
       if (warned < 5) {
         log.warn(`[${ontologyId}] Invalid accession format: ${term.accession}`);
+      } else {
+        fileLog.warn(`[${ontologyId}] Invalid accession format: ${term.accession}`);
       }
       warned++;
       continue;
@@ -76,6 +80,8 @@ function checkParentIntegrity(terms: OntologyTermEntry[], ontologyId: string): v
       if (!accessions.has(parentId) && !shownDangling.has(parentId)) {
         if (danglingCount < 10) {
           log.warn(`[${ontologyId}] Dangling parent ref: ${parentId} (from ${term.accession})`);
+        } else {
+          fileLog.warn(`[${ontologyId}] Dangling parent ref: ${parentId} (from ${term.accession})`);
         }
         shownDangling.add(parentId);
         danglingCount++;
@@ -134,8 +140,21 @@ async function processOntology(
   const { changed } = await fetchWithCache(config.source_url, sourceFile, metaFile, force);
 
   if (!changed && !force) {
-    log.info(`  Skipping (unchanged): ${config.id}`);
-    return { id: config.id, sourceVersion: "cached", changed: false };
+    const expectedFiles =
+      config.id === "ncbitaxon" && config.pruning?.enabled
+        ? [
+            join(outputDir, `${config.id}.json.gz`),
+            join(outputDir, `${config.id}-pruned.json.gz`),
+          ]
+        : [join(outputDir, `${config.id}.json.gz`)];
+
+    if (expectedFiles.every((f) => existsSync(f))) {
+      log.info(`  Skipping (unchanged): ${config.id}`);
+      return { id: config.id, sourceVersion: "cached", changed: false };
+    }
+
+    log.info(`  Output file(s) missing, rebuilding: ${config.id}`);
+    // fall through to full parse → validate → buildIndex
   }
 
   let terms: OntologyTermEntry[];
@@ -152,6 +171,21 @@ async function processOntology(
     terms = parsed.terms;
     sourceVersion = parsed.sourceVersion || new Date().toISOString().slice(0, 10);
     rankMap = parsed.rankMap;
+
+    const { discardedByPrefix } = parsed;
+    if (discardedByPrefix.length > 0) {
+      const prefixCounts = new Map<string, number>();
+      for (const acc of discardedByPrefix) {
+        const prefix = acc.split(":")[0];
+        prefixCounts.set(prefix, (prefixCounts.get(prefix) ?? 0) + 1);
+      }
+      const summary = [...prefixCounts.entries()].map(([p, n]) => `${p}: ${n}`).join(", ");
+      log.warn(`[${config.id}] Discarded ${discardedByPrefix.length} cross-prefix terms (${summary})`);
+      fileLog.warn(`[${config.id}] Full list of ${discardedByPrefix.length} cross-prefix discarded accessions:`);
+      for (const acc of discardedByPrefix) {
+        fileLog.warn(`[${config.id}]   discarded: ${acc}`);
+      }
+    }
   } else if (config.format === "unimod_xml") {
     const parsed = await parseUnimodXml(sourceFile);
     terms = parsed.terms;
@@ -225,6 +259,7 @@ export async function runPipeline(
 
   await ensureDir(outputDir);
   await ensureDir(dataDir);
+  initLogFile(outputDir);
 
   const yamlContent = await readFile(sourcesYamlPath, "utf-8");
   const sourcesFile = yaml.load(yamlContent) as OntologySourcesFile;

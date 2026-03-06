@@ -2,7 +2,7 @@ import { parseArgs } from "node:util";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPipeline } from "./pipeline.js";
-import { log } from "./utils.js";
+import { closeLogFile, log } from "./utils.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -37,13 +37,19 @@ if (ontologiesFilter) log.info(`Filter:        ${ontologiesFilter.join(", ")}`);
 if (force) log.info("Force mode:    re-downloading and rebuilding all");
 log.info("");
 
-runPipeline(sourcesYaml, allowlistPath, {
-  outputDir,
-  dataDir,
-  ontologies: ontologiesFilter,
-  force,
-  indexVersion,
-}).catch((err: unknown) => {
-  log.error("Fatal error:", err);
-  process.exit(1);
-});
+(async () => {
+  try {
+    await runPipeline(sourcesYaml, allowlistPath, {
+      outputDir,
+      dataDir,
+      ontologies: ontologiesFilter,
+      force,
+      indexVersion,
+    });
+  } catch (err: unknown) {
+    log.error("Fatal error:", err);
+    process.exitCode = 1;
+  } finally {
+    await closeLogFile();
+  }
+})();

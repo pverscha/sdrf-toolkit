@@ -155,13 +155,13 @@ ontologies:
     format: obo
     notes: null
 
-  - id: zfs
-    full_name: Zebrafish Developmental Stages Ontology
-    default_prefix: ZFS
-    additional_prefixes: []
-    source_url: http://purl.obolibrary.org/obo/zfs.obo
-    format: obo
-    notes: null
+#  - id: zfs
+#    full_name: Zebrafish Developmental Stages Ontology
+#    default_prefix: ZFS
+#    additional_prefixes: []
+#    source_url: http://purl.obolibrary.org/obo/zfs.obo
+#    format: obo
+#    notes: null
 
   - id: fbdv
     full_name: Drosophila Development Ontology

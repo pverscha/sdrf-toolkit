@@ -34,8 +34,9 @@ ontology-lookup/
 │   ├── search.ts                 # Tiered search logic (exact → prefix → fuzzy)
 │   ├── hierarchy.ts              # Ancestor/descendant DAG traversal
 │   ├── updater.ts                # Download/update pre-built indexes from GitHub
-│   └── formats/
-│       └── index-format.ts       # Read/decompress the .json.gz index format
+│   └── parsers/
+│       ├── index-parser.ts       # Read/decompress the .json.gz index format
+│       └── manifest-parser.ts    # Read/parse manifest.json files
 ├── tests/
 ├── package.json
 ├── tsconfig.json

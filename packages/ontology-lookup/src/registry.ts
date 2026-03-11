@@ -1,6 +1,7 @@
-import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { readIndexFile } from "./formats/index-format.js";
+import { readIndexFile } from "./parsers/index-parser.js";
+import { readManifestFile } from "./parsers/manifest-parser.js";
 import { OntologyIndex } from "./ontology-index.js";
 import { searchIndex, resolveIndex } from "./search.js";
 import { isDescendantOf, getDescendants } from "./hierarchy.js";
@@ -32,11 +33,7 @@ export class OntologyRegistry {
     // Load local manifest if present
     const manifestPath = join(indexDir, "manifest.json");
     if (existsSync(manifestPath)) {
-      try {
-        this.manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Manifest;
-      } catch {
-        this.manifest = null;
-      }
+      this.manifest = readManifestFile(manifestPath);
     }
 
     // Determine which ontology IDs to load
@@ -106,7 +103,7 @@ export class OntologyRegistry {
     // Re-read the updated manifest from disk
     const manifestPath = join(this.options.indexDir, "manifest.json");
     if (existsSync(manifestPath)) {
-      this.manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Manifest;
+      this.manifest = readManifestFile(manifestPath);
     }
 
     // Reload each updated ontology

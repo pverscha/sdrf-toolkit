@@ -1,18 +1,28 @@
 {
   "name": "@sdrf-toolkit/ontology-lookup",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "type": "module",
   "description": "Lightweight local ontology term lookup, synonym resolution, and hierarchy traversal for Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
+    "prebuild": "node --eval \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\"",
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.test.json"
   },

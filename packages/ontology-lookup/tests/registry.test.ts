@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import { tmpdir } from "node:os";
 import { OntologyRegistry } from "../src/registry.js";
-import type { OntologyIndexFile } from "../src/types.js";
+import {OntologyIndexFile, OntologyTermEntry} from "../src/types.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -12,7 +12,7 @@ import type { OntologyIndexFile } from "../src/types.js";
 
 function makeIndexFile(
   id: string,
-  terms: OntologyIndexFile["terms"] = []
+  terms: OntologyTermEntry[] = []
 ): OntologyIndexFile {
   return {
     meta: {
@@ -37,7 +37,7 @@ function writeGzipped(dir: string, fileName: string, indexFile: OntologyIndexFil
   writeFileSync(join(dir, fileName), compressed);
 }
 
-const testTerms: OntologyIndexFile["terms"] = [
+const testTerms: OntologyTermEntry[] = [
   {
     accession: "TEST:0001",
     label: "diabetes mellitus",

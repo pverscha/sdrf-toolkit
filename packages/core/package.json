@@ -1,6 +1,6 @@
 {
   "name": "@sdrf-toolkit/core",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.2",
   "type": "module",
   "description": "Parse, validate, and generate SDRF files driven by YAML template specifications",
   "main": "dist/index.js",
@@ -13,16 +13,24 @@
   },
   "files": [
     "dist",
-    "templates"
+    "README.md"
   ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
+    "prebuild": "node --eval \"import('node:fs').then(fs => fs.rmSync('dist', { recursive: true, force: true }))\"",
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@sdrf-toolkit/ontology-lookup": "file:../ontology-lookup",
     "js-yaml": "^4.1.0"
+  },
+  "peerDependencies": {
+    "@sdrf-toolkit/ontology-lookup": "^1.0.0-alpha.1"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.0",

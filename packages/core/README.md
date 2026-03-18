@@ -8,7 +8,7 @@ This package is part of the [sdrf-toolkit](https://github.com/TODO/sdrf-toolkit)
 
 ### What It Does
 
-- **Template management** — load YAML template specifications, resolve `extends` inheritance chains, and expose fully merged column definitions with their validators, descriptions, and examples.
+- **Template management** — load YAML template specifications from a directory, resolve `extends` inheritance chains, enforce layer dependencies and exclusions, and expose fully merged column definitions with their validators, descriptions, and examples.
 - **SDRF representation** — parse SDRF/TSV files into plain typed objects and serialize them back.
 - **Validation engine** — validate individual cell values (real-time, as the user types) or entire files (batch, before export) against a resolved template.
 
@@ -16,6 +16,7 @@ This package is part of the [sdrf-toolkit](https://github.com/TODO/sdrf-toolkit)
 
 - It does not provide ontology term search or hierarchy traversal directly — that is delegated to `@sdrf-toolkit/ontology-lookup`.
 - It does not include a UI — it provides the data and validation logic that a UI (such as a Vue/Vuetify application) consumes.
+- It does not bundle YAML template files — templates must be provided as a directory by the consumer.
 
 ---
 
@@ -26,14 +27,14 @@ core/
 ├── src/
 │   ├── index.ts                          # Public API barrel export
 │   ├── types/
-│   │   ├── template.ts                   # SdrfTemplate, ColumnDefinition, etc.
+│   │   ├── template.ts                   # SdrfTemplate, ColumnDefinition, RawSdrfTemplate, etc.
 │   │   ├── sdrf.ts                       # SdrfFile, SdrfRow
 │   │   └── validation.ts                 # ValidationResult, ValidationIssue, etc.
 │   ├── templates/
-│   │   ├── loader.ts                     # TemplateSource implementations (bundled, FS, remote, fallback)
 │   │   ├── parser.ts                     # Parse raw YAML into RawSdrfTemplate objects
 │   │   ├── merger.ts                     # Resolve "extends" chains, merge columns
-│   │   └── registry.ts                   # TemplateRegistry — holds and resolves templates
+│   │   ├── registry.ts                   # TemplateRegistry — holds and resolves templates
+│   │   └── semver-utils.ts               # satisfiesConstraint — for versioned extends
 │   ├── sdrf/
 │   │   ├── parser.ts                     # Parse TSV string or file into SdrfFile
 │   │   └── serializer.ts                 # Serialize SdrfFile back to TSV
@@ -43,29 +44,23 @@ core/
 │   │   ├── helpers.ts                    # Special value bypass logic (not applicable, etc.)
 │   │   └── validators/
 │   │       ├── base.ts                   # CellValidator and GlobalValidator interfaces
-│   │       ├── ontology.ts              # OntologyValidator (delegates to ontology-lookup)
-│   │       ├── pattern.ts               # PatternValidator (regex)
-│   │       ├── values.ts                # ValuesValidator (fixed allowed list)
-│   │       ├── single-cardinality.ts    # SingleCardinalityValidator (no semicolons)
-│   │       ├── number-with-unit.ts      # NumberWithUnitValidator (e.g., "1.5 mg")
-│   │       ├── mz-value.ts              # MzValueValidator (positive finite m/z)
-│   │       ├── mz-range-interval.ts     # MzRangeIntervalValidator ("lower-upper")
-│   │       ├── date.ts                  # DateValidator (ISO 8601 partial dates)
-│   │       ├── accession.ts             # AccessionValidator (prefix/suffix/biosample)
-│   │       ├── identifier.ts            # IdentifierValidator (charset + special values)
-│   │       ├── semver.ts                # SemverValidator (semantic version strings)
-│   │       ├── structured-kv.ts         # StructuredKvValidator (key=value segments)
-│   │       ├── trailing-whitespace.ts   # TrailingWhitespaceValidator
-│   │       ├── column-order.ts          # ColumnOrderValidator
-│   │       ├── empty-cells.ts           # EmptyCellsValidator
-│   │       ├── min-columns.ts           # MinColumnsValidator
+│   │       ├── ontology.ts               # OntologyValidator (delegates to ontology-lookup)
+│   │       ├── pattern.ts                # PatternValidator (regex)
+│   │       ├── values.ts                 # ValuesValidator (fixed allowed list)
+│   │       ├── single-cardinality.ts     # SingleCardinalityValidator (no semicolons)
+│   │       ├── number-with-unit.ts       # NumberWithUnitValidator (e.g., "1.5 mg")
+│   │       ├── mz-value.ts               # MzValueValidator (positive finite m/z)
+│   │       ├── mz-range-interval.ts      # MzRangeIntervalValidator ("lower-upper")
+│   │       ├── date.ts                   # DateValidator (ISO 8601 partial dates)
+│   │       ├── accession.ts              # AccessionValidator (prefix/suffix/biosample)
+│   │       ├── identifier.ts             # IdentifierValidator (charset + special values)
+│   │       ├── semver.ts                 # SemverValidator (semantic version strings)
+│   │       ├── structured-kv.ts          # StructuredKvValidator (key=value segments)
+│   │       ├── trailing-whitespace.ts    # TrailingWhitespaceValidator
+│   │       ├── column-order.ts           # ColumnOrderValidator
+│   │       ├── empty-cells.ts            # EmptyCellsValidator
+│   │       ├── min-columns.ts            # MinColumnsValidator
 │   │       └── combination-no-duplicate.ts  # CombinationNoDuplicateValidator
-├── templates/                            # Bundled YAML template files (optional default source)
-│   ├── base.yaml
-│   ├── human.yaml
-│   ├── ms-proteomics.yaml
-│   ├── dda-acquisition.yaml
-│   └── ...
 ├── tests/
 ├── package.json
 ├── tsconfig.json
@@ -89,12 +84,29 @@ export interface RawSdrfTemplate {
   name: string;
   description: string;
   version: string;
+  /** Raw extends value from YAML (may include @constraint, e.g. "base@>=1.0.0") */
   extends?: string;
+  /** Parsed base name without constraint */
+  extendsName?: string;
+  /** Parsed version constraint string (e.g. ">=1.0.0" or ">=1.0.0,<2.0.0") */
+  extendsConstraint?: string;
   usable_alone: boolean;
   layer?: string;
   mutually_exclusive_with?: string[];
+  requires?: RawRequirement[];
+  excludes?: RawExcludes;
   validators?: RawGlobalValidator[];
   columns?: RawColumnDefinition[];
+}
+
+export interface RawRequirement {
+  layer: "sample" | "technology" | "experiment";
+}
+
+export interface RawExcludes {
+  templates?: string[];
+  categories?: ("characteristics" | "comment" | "factor value")[];
+  columns?: string[];
 }
 ```
 
@@ -107,7 +119,7 @@ export interface SdrfTemplate {
   /** Names of all templates that were composed (e.g., ["base", "human", "ms-proteomics"]) */
   composedFrom: string[];
 
-  /** Template-level metadata */
+  /** Template-level metadata from the last (most specific) template */
   name: string;
   description: string;
   version: string;
@@ -144,6 +156,9 @@ export interface ColumnDefinition {
    */
   cardinality: "single" | "multiple";
 
+  /** Data type hint for the column value */
+  type?: "integer" | "string" | "float";
+
   /** Whether "not applicable" is a valid value for this column */
   allowNotApplicable: boolean;
 
@@ -151,10 +166,10 @@ export interface ColumnDefinition {
   allowNotAvailable: boolean;
 
   /** Whether "anonymized" is a valid value for this column */
-  allowAnonymized: boolean;    // default: false
+  allowAnonymized: boolean;
 
   /** Whether "pooled" is a valid value for this column */
-  allowPooled: boolean;        // default: false
+  allowPooled: boolean;
 
   /** Validators to run on cell values in this column */
   validators: CellValidatorDefinition[];
@@ -168,7 +183,7 @@ export interface ColumnDefinition {
 
 ```typescript
 export interface CellValidatorDefinition {
-  /** Validator type: "ontology", "pattern", or "values" */
+  /** Validator type: "ontology", "pattern", "values", etc. */
   validatorName: string;
 
   /** Validator-specific parameters (see Validator Specifications below) */
@@ -256,50 +271,16 @@ export interface FileValidationResult {
 
 ## Template Loading & Resolution
 
-### Template Sources
-
-The package abstracts where YAML template files come from via the `TemplateSource` interface. Four implementations are provided:
-
-```typescript
-export interface TemplateSource {
-  /** Load raw YAML text by template name (without .yaml extension) */
-  load(name: string): Promise<string>;
-
-  /** List available template names */
-  list(): Promise<string[]>;
-}
-
-/** Load from YAML files bundled inside the npm package */
-export class BundledTemplateSource implements TemplateSource { ... }
-
-/** Load from a directory on the filesystem */
-export class FilesystemTemplateSource implements TemplateSource {
-  constructor(directory: string);
-}
-
-/** Load from a remote URL (e.g., GitHub raw content) */
-export class RemoteTemplateSource implements TemplateSource {
-  constructor(baseUrl: string);
-}
-
-/**
- * Composite source: try multiple sources in order.
- * Useful for "load custom templates first, fall back to bundled defaults."
- */
-export class FallbackTemplateSource implements TemplateSource {
-  constructor(sources: TemplateSource[]);
-}
-```
-
 ### Template Registry
 
-The `TemplateRegistry` is the main entry point for working with templates. It loads, caches, and resolves templates:
+The `TemplateRegistry` is the main entry point for working with templates. It loads YAML templates from a directory on the filesystem, caches them, and resolves `extends` chains on demand.
 
 ```typescript
 export class TemplateRegistry {
-  constructor(source: TemplateSource);
+  /** @param directory Path to the directory containing .yaml template files */
+  constructor(directory: string);
 
-  /** Load all available templates from the source. Call once at startup. */
+  /** Load all available templates from the directory. Call once at startup. */
   async initialize(): Promise<void>;
 
   /** Get a single raw (unmerged) template by name */
@@ -308,18 +289,19 @@ export class TemplateRegistry {
   /** List all available template names */
   getAvailableTemplates(): string[];
 
-  /** Get templates filtered by layer (e.g., "sample", "experiment") */
+  /** Get templates filtered by layer (e.g., "sample", "technology", "experiment") */
   getTemplatesByLayer(layer: string): RawSdrfTemplate[];
 
   /**
    * Check which templates are mutually exclusive with a given template.
-   * Use this at template selection time in the UI to disable incompatible choices.
+   * Considers both the template's own `mutually_exclusive_with` list and
+   * any template that lists `name` in its own `mutually_exclusive_with`.
    */
   getMutuallyExclusiveWith(name: string): string[];
 
   /**
    * Resolve a set of template names into a single merged SdrfTemplate.
-   * Handles "extends" chains automatically.
+   * Handles "extends" chains, layer dependency enforcement, and excludes rules.
    *
    * Example: resolveTemplates(["human", "dda-acquisition"])
    *   → resolves human (extends base), dda-acquisition (extends ms-proteomics → base)
@@ -330,16 +312,33 @@ export class TemplateRegistry {
 }
 ```
 
+Templates are not bundled inside this package — you must provide your own template directory. Template YAML files follow the format documented in the [YAML Template Format Reference](#yaml-template-format-reference) section.
+
+### Low-Level API
+
+For advanced use cases, the parsing and merging steps are exported directly:
+
+```typescript
+/** Parse a raw YAML string into a RawSdrfTemplate */
+export function parseTemplate(yaml: string): RawSdrfTemplate;
+
+/** Merge a linearized list of RawSdrfTemplates into a single SdrfTemplate */
+export function mergeTemplates(linearized: RawSdrfTemplate[]): SdrfTemplate;
+
+/** Check whether a version string satisfies a constraint (e.g., ">=1.0.0") */
+export function satisfiesConstraint(version: string, constraint: string): boolean;
+```
+
 ### Template Merge Algorithm
 
 When `resolveTemplates(["human", "dda-acquisition"])` is called, the following steps occur:
 
 **1. Expand extends chains:**
-Each template's `extends` field is followed recursively until a template with no parent is reached.
+Each template's `extends` field is followed recursively until a template with no parent is reached. Version constraints in `extends` (e.g., `base@>=1.0.0`) are checked and produce a console warning if violated.
 
 ```
-human          → extends base          → chain: [base, human]
-dda-acquisition → extends ms-proteomics → extends base → chain: [base, ms-proteomics, dda-acquisition]
+human           → extends base           → chain: [base, human]
+dda-acquisition → extends ms-proteomics  → extends base → chain: [base, ms-proteomics, dda-acquisition]
 ```
 
 **2. Linearize and deduplicate:**
@@ -349,14 +348,20 @@ All chains are combined in dependency order. Duplicates are removed, keeping the
 [base, human, ms-proteomics, dda-acquisition]
 ```
 
-**3. Merge columns:**
-Walk the linearized list in order. For each template, append its columns to the result. If a column with the same name already exists from an earlier template, the later definition overrides it. This allows more specific templates to refine columns defined in base templates.
+**3. Enforce layer requirements:**
+Each template's `requires` list is checked against the set of layers present in the linearized list. If a required layer is missing, an error is thrown.
 
-**4. Merge global validators:**
+**4. Merge columns:**
+Walk the linearized list in order. For each template, append its columns to the result. If a column with the same name already exists from an earlier template, the later definition overrides it. Position in the final list is determined by the first occurrence.
+
+**5. Apply excludes rules:**
+Each template's `excludes` definition can remove columns introduced by other templates. Columns can be excluded by source template name, category prefix (`characteristics[`, `comment[`, `factor value[`), or exact column name. A template can never exclude its own columns.
+
+**6. Merge global validators:**
 Concatenate all global validators from all templates, deduplicating by `validator_name`.
 
-**5. Merge metadata:**
-The final `SdrfTemplate` gets `composedFrom: ["base", "human", "ms-proteomics", "dda-acquisition"]`, and `mutually_exclusive_with` is the union of all exclusions from all composed templates.
+**7. Merge metadata:**
+The final `SdrfTemplate` gets `composedFrom: ["base", "human", "ms-proteomics", "dda-acquisition"]`, `mutually_exclusive_with` is the union of all exclusions from all composed templates, and all other metadata comes from the last (most specific) template.
 
 ---
 
@@ -942,12 +947,24 @@ name: human                          # Unique template identifier
 description: Human SDRF template...  # Human-readable description
 version: 1.1.0                       # Semver version
 extends: base                        # Parent template name (optional)
+                                     # Supports version constraint: "base@>=1.0.0"
 usable_alone: false                  # Whether this template can be used without combining with others
 layer: sample                        # Template layer for categorization (optional)
 mutually_exclusive_with:             # Templates that cannot be combined with this one
   - vertebrates
   - invertebrates
   - plants
+requires:                            # Layer dependencies — all listed layers must be present
+  - layer: sample                    #   in the final resolved combination
+excludes:                            # Remove columns from other templates in the composition
+  templates:                         #   Remove all columns from these source templates
+    - base
+  categories:                        #   Remove all columns whose name starts with these prefixes
+    - characteristics
+    - comment
+    - factor value
+  columns:                           #   Remove these specific columns by name
+    - assay name
 ```
 
 ### Template-Level Validators
@@ -985,6 +1002,7 @@ columns:
     description: Disease state...        # Human-readable description
     requirement: required                # required | recommended | optional
     cardinality: multiple                # single (default) | multiple
+    type: string                         # integer | string | float (optional hint)
     allow_not_applicable: true           # Whether "not applicable" is accepted
     allow_not_available: true            # Whether "not available" is accepted
     allow_anonymized: false              # Whether "anonymized" is accepted (default: false)
@@ -1010,9 +1028,6 @@ columns:
 ```typescript
 import {
   TemplateRegistry,
-  FallbackTemplateSource,
-  FilesystemTemplateSource,
-  BundledTemplateSource,
   ValidationEngine,
   parseSdrf,
   serializeSdrf
@@ -1028,12 +1043,8 @@ const ontologyRegistry = new OntologyRegistry({
 });
 await ontologyRegistry.initialize();
 
-const templateRegistry = new TemplateRegistry(
-  new FallbackTemplateSource([
-    new FilesystemTemplateSource("/path/to/custom-templates"),
-    new BundledTemplateSource(),
-  ])
-);
+// Templates are loaded from a directory you provide — they are not bundled.
+const templateRegistry = new TemplateRegistry("/path/to/templates");
 await templateRegistry.initialize();
 
 const engine = new ValidationEngine(ontologyRegistry);
@@ -1123,6 +1134,6 @@ const tsv = serializeSdrf(sdrfFile);
 |---|---|---|
 | Data model | Plain interfaces, no classes | Serialization-friendly, Vue reactivity-friendly, easy to pass over Electron IPC |
 | Validators | Async interface | Future-proof for remote lookups; synchronous validators simply resolve immediately |
-| Template sources | Pluggable `TemplateSource` interface | Supports bundled, filesystem, remote, and composite strategies |
+| Template loading | Directory-based `TemplateRegistry` | Simple and explicit; consumers own their template files rather than relying on bundled defaults |
 | Template resolution | Package resolves `extends` chains | Consuming app just passes template names; no need to understand the inheritance tree |
 | Error vs. Warning | Two levels only | Matches the YAML spec; keeps the validation result model simple |

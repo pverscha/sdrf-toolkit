@@ -6,6 +6,7 @@ import type {
   GlobalValidatorDefinition,
   CellValidatorDefinition,
 } from "../types/template.js";
+import { CellValidatorType, GlobalValidatorType } from "../types/template.js";
 
 /**
  * Given a linearized list of RawSdrfTemplates (in dependency order, from most
@@ -75,7 +76,7 @@ export function mergeTemplates(linearized: RawSdrfTemplate[]): SdrfTemplate {
       if (!globalValidatorNames.has(v.validator_name)) {
         globalValidatorNames.add(v.validator_name);
         globalValidators.push({
-          validatorName: v.validator_name,
+          validatorName: v.validator_name as GlobalValidatorType,
           params: v.params,
         });
       }
@@ -114,7 +115,7 @@ function resolveColumn(raw: RawColumnDefinition, sourceTemplate: string): Column
     const examples = params["examples"] as string[] | undefined;
 
     return {
-      validatorName: v.validator_name,
+      validatorName: v.validator_name as CellValidatorType,
       params,
       description,
       examples,

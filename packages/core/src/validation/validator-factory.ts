@@ -1,4 +1,5 @@
 import type { OntologyRegistry } from "@sdrf-toolkit/ontology-lookup";
+import { CellValidatorType, GlobalValidatorType } from "../types/template.js";
 import type { CellValidatorDefinition, GlobalValidatorDefinition } from "../types/template.js";
 import type { CellValidator, GlobalValidator } from "./validators/base.js";
 import { OntologyValidator, type OntologyParams } from "./validators/ontology.js";
@@ -29,29 +30,29 @@ export class ValidatorFactory {
   createCellValidator(definition: CellValidatorDefinition): CellValidator {
     const p = definition.params;
     switch (definition.validatorName) {
-      case "ontology":
+      case CellValidatorType.Ontology:
         return new OntologyValidator(this.ontologyRegistry, cast<OntologyParams>(p));
-      case "pattern":
+      case CellValidatorType.Pattern:
         return new PatternValidator(cast<PatternParams>(p));
-      case "values":
+      case CellValidatorType.Values:
         return new ValuesValidator(cast<ValuesParams>(p));
-      case "single_cardinality_validator":
+      case CellValidatorType.SingleCardinality:
         return new SingleCardinalityValidator(cast<SingleCardinalityParams>(p));
-      case "number_with_unit":
+      case CellValidatorType.NumberWithUnit:
         return new NumberWithUnitValidator(cast<NumberWithUnitParams>(p));
-      case "mz_value":
+      case CellValidatorType.MzValue:
         return new MzValueValidator(cast<MzValueParams>(p));
-      case "mz_range_interval":
+      case CellValidatorType.MzRangeInterval:
         return new MzRangeIntervalValidator(cast<MzRangeIntervalParams>(p));
-      case "date":
+      case CellValidatorType.Date:
         return new DateValidator(cast<DateParams>(p));
-      case "accession":
+      case CellValidatorType.Accession:
         return new AccessionValidator(cast<AccessionParams>(p));
-      case "identifier":
+      case CellValidatorType.Identifier:
         return new IdentifierValidator(cast<IdentifierParams>(p));
-      case "semver":
+      case CellValidatorType.Semver:
         return new SemverValidator(cast<SemverParams>(p));
-      case "structured_kv":
+      case CellValidatorType.StructuredKv:
         return new StructuredKvValidator(cast<StructuredKvParams>(p));
       default:
         throw new Error(`Unknown cell validator: "${definition.validatorName}"`);
@@ -61,15 +62,15 @@ export class ValidatorFactory {
   createGlobalValidator(definition: GlobalValidatorDefinition): GlobalValidator {
     const p = definition.params;
     switch (definition.validatorName) {
-      case "trailing_whitespace_validator":
+      case GlobalValidatorType.TrailingWhitespace:
         return new TrailingWhitespaceValidator();
-      case "column_order":
+      case GlobalValidatorType.ColumnOrder:
         return new ColumnOrderValidator();
-      case "empty_cells":
+      case GlobalValidatorType.EmptyCells:
         return new EmptyCellsValidator();
-      case "combination_of_columns_no_duplicate_validator":
+      case GlobalValidatorType.CombinationNoDuplicate:
         return new CombinationNoDuplicateValidator(cast<CombinationNoDuplicateParams>(p));
-      case "min_columns":
+      case GlobalValidatorType.MinColumns:
         return new MinColumnsValidator(cast<MinColumnsParams>(p));
       default:
         throw new Error(`Unknown global validator: "${definition.validatorName}"`);

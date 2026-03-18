@@ -1,4 +1,33 @@
 // ---------------------------------------------------------------------------
+// Validator type enums — exhaustive lists of all supported validator names
+// ---------------------------------------------------------------------------
+
+/** All supported cell-level validator types. */
+export enum CellValidatorType {
+  Ontology = "ontology",
+  Pattern = "pattern",
+  Values = "values",
+  SingleCardinality = "single_cardinality_validator",
+  NumberWithUnit = "number_with_unit",
+  MzValue = "mz_value",
+  MzRangeInterval = "mz_range_interval",
+  Date = "date",
+  Accession = "accession",
+  Identifier = "identifier",
+  Semver = "semver",
+  StructuredKv = "structured_kv",
+}
+
+/** All supported global (file-level) validator types. */
+export enum GlobalValidatorType {
+  TrailingWhitespace = "trailing_whitespace_validator",
+  ColumnOrder = "column_order",
+  EmptyCells = "empty_cells",
+  CombinationNoDuplicate = "combination_of_columns_no_duplicate_validator",
+  MinColumns = "min_columns",
+}
+
+// ---------------------------------------------------------------------------
 // Raw types — the direct shape of parsed YAML before "extends" resolution
 // ---------------------------------------------------------------------------
 
@@ -59,8 +88,8 @@ export interface RawSdrfTemplate {
 // ---------------------------------------------------------------------------
 
 export interface CellValidatorDefinition {
-  /** Validator type: "ontology", "pattern", or "values" */
-  validatorName: string;
+  /** The type of cell-level validator to apply. */
+  validatorName: CellValidatorType;
 
   /** Validator-specific parameters */
   params: Record<string, unknown>;
@@ -73,7 +102,7 @@ export interface CellValidatorDefinition {
 }
 
 export interface GlobalValidatorDefinition {
-  validatorName: string;
+  validatorName: GlobalValidatorType;
   params: Record<string, unknown>;
 }
 

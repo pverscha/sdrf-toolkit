@@ -12,6 +12,8 @@ export type {
   GlobalValidatorDefinition,
 } from "./types/template.js";
 
+export { CellValidatorType, GlobalValidatorType } from "./types/template.js";
+
 export type { SdrfFile, SdrfRow } from "./types/sdrf.js";
 
 export type {

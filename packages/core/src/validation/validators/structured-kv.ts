@@ -48,7 +48,7 @@ export class StructuredKvValidator implements CellValidator {
       if (!re.test(segValue)) {
         issues.push({
           level: errorLevel,
-          message: `Field "${field.key}" value "${segValue}" does not match pattern "${field.value}".`,
+          message: `The "${field.key}" field has an invalid value: "${segValue}".`,
           validatorName: this.name,
           rowIndex: context.rowIndex,
           columnName: context.columnDef.name,

@@ -33,9 +33,20 @@ export function checkSpecialValue(
     return { valid: true, issues: [] };
   }
 
+  const allowed: string[] = [];
+  if (columnDef.allowNotApplicable) allowed.push("not applicable");
+  if (columnDef.allowNotAvailable) allowed.push("not available");
+  if (columnDef.allowAnonymized) allowed.push("anonymized");
+  if (columnDef.allowPooled) allowed.push("pooled");
+
+  const hint =
+    allowed.length > 0
+      ? `Accepted special values for this column: ${allowed.join(", ")}.`
+      : `This column does not accept any special values — please provide an actual value.`;
+
   const issue: ValidationIssue = {
     level: "error",
-    message: `Value "${value}" is not permitted for column "${columnDef.name}".`,
+    message: `"${value}" is not a valid special value for column "${columnDef.name}". ${hint}`,
     validatorName: "special_value",
     value,
   };

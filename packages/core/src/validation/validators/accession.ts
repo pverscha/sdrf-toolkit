@@ -29,12 +29,13 @@ export class AccessionValidator implements CellValidator {
     }
 
     if (!valid) {
-      const constraints: string[] = [];
-      if (this.params.prefix) constraints.push(`prefix "${this.params.prefix}"`);
-      if (this.params.suffix) constraints.push(`suffix "${this.params.suffix}"`);
+      const parts: string[] = [];
+      if (this.params.prefix) parts.push(`start with "${this.params.prefix}"`);
+      if (this.params.suffix) parts.push(`end with "${this.params.suffix}"`);
+      const example = `${this.params.prefix ?? ""}XXXXXX${this.params.suffix ?? ""}`;
       const issue: ValidationIssue = {
         level: errorLevel,
-        message: `"${value}" does not match the expected accession format (${constraints.join(", ")}).`,
+        message: `"${value}" is not a valid accession. Values in this field must ${parts.join(" and ")} (e.g., ${example}).`,
         validatorName: this.name,
         rowIndex: context.rowIndex,
         columnName: context.columnDef.name,

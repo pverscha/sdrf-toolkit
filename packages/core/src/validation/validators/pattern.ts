@@ -22,7 +22,7 @@ export class PatternValidator implements CellValidator {
     if (!regex.test(value)) {
       const issue: ValidationIssue = {
         level: errorLevel,
-        message: `"${value}" does not match the expected pattern: ${this.params.pattern}.`,
+        message: `"${value}" does not match the required format for this field.`,
         validatorName: this.name,
         rowIndex: context.rowIndex,
         columnName: context.columnDef.name,

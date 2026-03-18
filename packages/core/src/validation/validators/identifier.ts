@@ -24,7 +24,7 @@ export class IdentifierValidator implements CellValidator {
       if (!charsetRe.test(value)) {
         const issue: ValidationIssue = {
           level: errorLevel,
-          message: `"${value}" contains characters not allowed by the charset pattern: ${this.params.charset}.`,
+          message: `"${value}" contains invalid characters for this field.`,
           validatorName: this.name,
           rowIndex: context.rowIndex,
           columnName: context.columnDef.name,

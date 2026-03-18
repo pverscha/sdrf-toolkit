@@ -24,7 +24,7 @@ export class ValidationEngine {
   }
 
   /**
-   * Validate a single cell value against a column definition.
+   * Validate a single complete cell value against a column definition.
    * Use this for real-time validation in the UI as the user types.
    */
   async validateCell(
@@ -37,11 +37,6 @@ export class ValidationEngine {
       rowIndex: context?.rowIndex ?? 0,
       row: context?.row ?? { index: 0, cells: {} },
     };
-
-    // For multiple cardinality, split on ";" and validate each segment independently
-    if (columnDef.cardinality === "multiple") {
-      return this.validateMultiValue(value, columnDef, fullContext);
-    }
 
     return this.validateSingleValue(value, columnDef, fullContext);
   }
@@ -77,7 +72,7 @@ export class ValidationEngine {
 
     // Run cell validators on every cell in the file
     for (const row of file.rows) {
-      for (const [columnName, value] of Object.entries(row.cells)) {
+      for (const [columnName, values] of Object.entries(row.cells)) {
         const colDef = columnMap.get(columnName);
         if (!colDef) continue; // custom column — skip cell validation
 
@@ -87,11 +82,16 @@ export class ValidationEngine {
           row,
         };
 
-        const result = await (colDef.cardinality === "multiple"
-          ? this.validateMultiValue(value, colDef, ctx)
-          : this.validateSingleValue(value, colDef, ctx));
-
-        allIssues.push(...result.issues);
+        if (colDef.cardinality === "multiple") {
+          // Each column occurrence is one complete value — validate independently
+          for (const val of values) {
+            const result = await this.validateSingleValue(val, colDef, ctx);
+            allIssues.push(...result.issues);
+          }
+        } else {
+          const result = await this.validateSingleValue(values[0] ?? "", colDef, ctx);
+          allIssues.push(...result.issues);
+        }
       }
     }
 
@@ -135,32 +135,4 @@ export class ValidationEngine {
     return { valid: !hasErrors, issues };
   }
 
-  private async validateMultiValue(
-    value: string,
-    columnDef: ColumnDefinition,
-    context: CellValidationContext
-  ): Promise<CellValidationResult> {
-    // Check special value against the whole string first
-    const specialResult = checkSpecialValue(value, columnDef);
-    if (specialResult !== null) {
-      return specialResult;
-    }
-
-    const segments = value.split(";").map(s => s.trim());
-    const allIssues: ValidationIssue[] = [];
-
-    for (const segment of segments) {
-      for (const validatorDef of columnDef.validators) {
-        const validator = this.factory.createCellValidator(validatorDef);
-        const result = await validator.validate(segment, context);
-        // Annotate each issue with the specific sub-value that failed
-        for (const issue of result.issues) {
-          allIssues.push({ ...issue, value: segment });
-        }
-      }
-    }
-
-    const hasErrors = allIssues.some(i => i.level === "error");
-    return { valid: !hasErrors, issues: allIssues };
-  }
 }

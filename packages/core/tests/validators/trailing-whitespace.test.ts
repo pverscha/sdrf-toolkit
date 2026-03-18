@@ -9,7 +9,7 @@ describe("TrailingWhitespaceValidator", () => {
   it("reports no issues for cells without whitespace", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": "sample1" } }],
+      rows: [{ index: 0, cells: { "source name": ["sample1"] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(0);
@@ -18,7 +18,7 @@ describe("TrailingWhitespaceValidator", () => {
   it("reports a warning for cells with trailing whitespace", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": "sample1 " } }],
+      rows: [{ index: 0, cells: { "source name": ["sample1 "] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(1);
@@ -30,7 +30,7 @@ describe("TrailingWhitespaceValidator", () => {
   it("reports a warning for cells with leading whitespace", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": " sample1" } }],
+      rows: [{ index: 0, cells: { "source name": [" sample1"] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(1);
@@ -40,7 +40,7 @@ describe("TrailingWhitespaceValidator", () => {
   it("reports a warning for cells with both leading and trailing whitespace", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": "  sample1  " } }],
+      rows: [{ index: 0, cells: { "source name": ["  sample1  "] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(1);
@@ -50,7 +50,7 @@ describe("TrailingWhitespaceValidator", () => {
     const file: SdrfFile = {
       headers: ["source name", "assay name"],
       rows: [
-        { index: 0, cells: { "source name": "s1 ", "assay name": " a1" } },
+        { index: 0, cells: { "source name": ["s1 "], "assay name": [" a1"] } },
       ],
     };
     const issues = await v.validate(file, makeTemplate());
@@ -61,9 +61,9 @@ describe("TrailingWhitespaceValidator", () => {
     const file: SdrfFile = {
       headers: ["source name"],
       rows: [
-        { index: 0, cells: { "source name": "s1 " } },
-        { index: 1, cells: { "source name": " s2" } },
-        { index: 2, cells: { "source name": "s3" } },
+        { index: 0, cells: { "source name": ["s1 "] } },
+        { index: 1, cells: { "source name": [" s2"] } },
+        { index: 2, cells: { "source name": ["s3"] } },
       ],
     };
     const issues = await v.validate(file, makeTemplate());
@@ -73,7 +73,7 @@ describe("TrailingWhitespaceValidator", () => {
   it("includes row index and value in each issue", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 3, cells: { "source name": "val " } }],
+      rows: [{ index: 3, cells: { "source name": ["val "] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues[0].rowIndex).toBe(3);

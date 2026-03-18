@@ -126,4 +126,73 @@ describe("OntologyValidator", () => {
     const result = await v.validate("something", makeContext());
     expect(result.issues[0].message).toMatch(/pato/);
   });
+
+  describe("structured SDRF value parsing (NT=…;AC=…)", () => {
+    it("resolves via NT label for full structured value 'NT=homo sapiens;AC=NCBITaxon:9606'", async () => {
+      const resolveFn = vi.fn().mockReturnValue({ accession: "NCBITaxon:9606", ontology: "ncbitaxon" });
+      const registry = makeRegistry({ resolve: resolveFn });
+      const v = new OntologyValidator(registry, { ontologies: ["ncbitaxon"] });
+      const result = await v.validate("NT=homo sapiens;AC=NCBITaxon:9606", makeContext());
+      expect(result.valid).toBe(true);
+      // NT label should be tried first
+      expect(resolveFn).toHaveBeenCalledWith("homo sapiens", ["ncbitaxon"]);
+    });
+
+    it("resolves via NT label when only NT is present", async () => {
+      const resolveFn = vi.fn().mockReturnValue({ accession: "NCBITaxon:9606", ontology: "ncbitaxon" });
+      const registry = makeRegistry({ resolve: resolveFn });
+      const v = new OntologyValidator(registry, { ontologies: ["ncbitaxon"] });
+      const result = await v.validate("NT=homo sapiens", makeContext());
+      expect(result.valid).toBe(true);
+      expect(resolveFn).toHaveBeenCalledWith("homo sapiens", ["ncbitaxon"]);
+    });
+
+    it("falls back to AC accession when NT label lookup fails", async () => {
+      const resolveFn = vi.fn()
+        .mockReturnValueOnce(null)                                              // NT label miss
+        .mockReturnValueOnce({ accession: "NCBITaxon:9606", ontology: "ncbitaxon" }); // AC hit
+      const registry = makeRegistry({ resolve: resolveFn });
+      const v = new OntologyValidator(registry, { ontologies: ["ncbitaxon"] });
+      const result = await v.validate("NT=homo sapiens;AC=NCBITaxon:9606", makeContext());
+      expect(result.valid).toBe(true);
+      expect(resolveFn).toHaveBeenNthCalledWith(1, "homo sapiens", ["ncbitaxon"]);
+      expect(resolveFn).toHaveBeenNthCalledWith(2, "NCBITaxon:9606", ["ncbitaxon"]);
+    });
+
+    it("resolves a plain label without structured syntax", async () => {
+      const resolveFn = vi.fn().mockReturnValue({ accession: "NCBITaxon:9606", ontology: "ncbitaxon" });
+      const registry = makeRegistry({ resolve: resolveFn });
+      const v = new OntologyValidator(registry, { ontologies: ["ncbitaxon"] });
+      const result = await v.validate("homo sapiens", makeContext());
+      expect(result.valid).toBe(true);
+      expect(resolveFn).toHaveBeenCalledWith("homo sapiens", ["ncbitaxon"]);
+    });
+
+    it("resolves a plain accession without structured syntax", async () => {
+      const resolveFn = vi.fn().mockReturnValue({ accession: "NCBITaxon:9606", ontology: "ncbitaxon" });
+      const registry = makeRegistry({ resolve: resolveFn });
+      const v = new OntologyValidator(registry, { ontologies: ["ncbitaxon"] });
+      const result = await v.validate("NCBITaxon:9606", makeContext());
+      expect(result.valid).toBe(true);
+      expect(resolveFn).toHaveBeenCalledWith("NCBITaxon:9606", ["ncbitaxon"]);
+    });
+
+    it("validates full modification parameters value as a single structured term", async () => {
+      const resolveFn = vi.fn().mockReturnValue({ accession: "UNIMOD:35", ontology: "unimod" });
+      const registry = makeRegistry({ resolve: resolveFn });
+      const v = new OntologyValidator(registry, { ontologies: ["unimod"] });
+      const result = await v.validate("NT=Oxidation;MT=variable;TA=M;AC=UNIMOD:35", makeContext());
+      expect(result.valid).toBe(true);
+      expect(resolveFn).toHaveBeenCalledWith("Oxidation", ["unimod"]);
+    });
+
+    it("rejects when neither NT nor AC resolves", async () => {
+      const registry = makeRegistry({ resolve: vi.fn().mockReturnValue(null) });
+      const v = new OntologyValidator(registry, { ontologies: ["ncbitaxon"] });
+      const result = await v.validate("NT=not a real term;AC=FAKE:0001", makeContext());
+      expect(result.valid).toBe(false);
+      expect(result.issues[0].level).toBe("error");
+    });
+
+  });
 });

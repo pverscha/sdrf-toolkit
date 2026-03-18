@@ -83,6 +83,7 @@ function parseColumns(raw: unknown): RawColumnDefinition[] {
       allow_not_available: col["allow_not_available"] as boolean | undefined,
       allow_anonymized: col["allow_anonymized"] as boolean | undefined,
       allow_pooled: col["allow_pooled"] as boolean | undefined,
+      allow_norm: col["allow_norm"] as boolean | undefined,
       validators: parseCellValidators(col["validators"]),
     };
   });

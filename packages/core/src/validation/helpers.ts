@@ -25,6 +25,8 @@ export function checkSpecialValue(
     isAllowed = columnDef.allowAnonymized;
   } else if (lower === "pooled") {
     isAllowed = columnDef.allowPooled;
+  } else if (lower === "norm") {
+    isAllowed = columnDef.allowNorm;
   } else {
     return null;
   }
@@ -38,6 +40,7 @@ export function checkSpecialValue(
   if (columnDef.allowNotAvailable) allowed.push("not available");
   if (columnDef.allowAnonymized) allowed.push("anonymized");
   if (columnDef.allowPooled) allowed.push("pooled");
+  if (columnDef.allowNorm) allowed.push("norm");
 
   const hint =
     allowed.length > 0

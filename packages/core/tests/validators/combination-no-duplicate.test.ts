@@ -13,9 +13,9 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name", "assay name"],
         rows: [
-          { index: 0, cells: { "source name": "s1", "assay name": "a1" } },
-          { index: 1, cells: { "source name": "s1", "assay name": "a2" } },
-          { index: 2, cells: { "source name": "s2", "assay name": "a1" } },
+          { index: 0, cells: { "source name": ["s1"], "assay name": ["a1"] } },
+          { index: 1, cells: { "source name": ["s1"], "assay name": ["a2"] } },
+          { index: 2, cells: { "source name": ["s2"], "assay name": ["a1"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -26,8 +26,8 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name", "assay name"],
         rows: [
-          { index: 0, cells: { "source name": "s1", "assay name": "a1" } },
-          { index: 1, cells: { "source name": "s1", "assay name": "a1" } },
+          { index: 0, cells: { "source name": ["s1"], "assay name": ["a1"] } },
+          { index: 1, cells: { "source name": ["s1"], "assay name": ["a1"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -41,9 +41,9 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name", "assay name"],
         rows: [
-          { index: 0, cells: { "source name": "s1", "assay name": "a1" } },
-          { index: 1, cells: { "source name": "s1", "assay name": "a1" } },
-          { index: 2, cells: { "source name": "s1", "assay name": "a1" } },
+          { index: 0, cells: { "source name": ["s1"], "assay name": ["a1"] } },
+          { index: 1, cells: { "source name": ["s1"], "assay name": ["a1"] } },
+          { index: 2, cells: { "source name": ["s1"], "assay name": ["a1"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -54,8 +54,8 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name", "assay name"],
         rows: [
-          { index: 0, cells: { "source name": "s1", "assay name": "a1" } },
-          { index: 5, cells: { "source name": "s1", "assay name": "a1" } },
+          { index: 0, cells: { "source name": ["s1"], "assay name": ["a1"] } },
+          { index: 5, cells: { "source name": ["s1"], "assay name": ["a1"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -73,8 +73,8 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name"],
         rows: [
-          { index: 0, cells: { "source name": "s1" } },
-          { index: 1, cells: { "source name": "s1" } },
+          { index: 0, cells: { "source name": ["s1"] } },
+          { index: 1, cells: { "source name": ["s1"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -86,8 +86,8 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name"],
         rows: [
-          { index: 0, cells: { "source name": "s1" } },
-          { index: 1, cells: { "source name": "s2" } },
+          { index: 0, cells: { "source name": ["s1"] } },
+          { index: 1, cells: { "source name": ["s2"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -104,8 +104,8 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name", "assay name"],
         rows: [
-          { index: 0, cells: { "source name": "s1", "assay name": "a1" } },
-          { index: 1, cells: { "source name": "s1", "assay name": "a1" } },
+          { index: 0, cells: { "source name": ["s1"], "assay name": ["a1"] } },
+          { index: 1, cells: { "source name": ["s1"], "assay name": ["a1"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -122,8 +122,8 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name"],
         rows: [
-          { index: 0, cells: { "source name": "s1" } },
-          { index: 1, cells: { "source name": "s1" } },
+          { index: 0, cells: { "source name": ["s1"] } },
+          { index: 1, cells: { "source name": ["s1"] } },
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -135,8 +135,8 @@ describe("CombinationNoDuplicateValidator", () => {
       const file: SdrfFile = {
         headers: ["source name", "assay name"],
         rows: [
-          { index: 0, cells: { "source name": "s1" } }, // assay name missing
-          { index: 1, cells: { "source name": "s1" } }, // assay name missing → same key
+          { index: 0, cells: { "source name": ["s1"] } }, // assay name missing
+          { index: 1, cells: { "source name": ["s1"] } }, // assay name missing → same key
         ],
       };
       const issues = await v.validate(file, makeTemplate());
@@ -147,7 +147,7 @@ describe("CombinationNoDuplicateValidator", () => {
       const v = new CombinationNoDuplicateValidator({ column_name: ["source name"] });
       const file: SdrfFile = {
         headers: ["source name"],
-        rows: [{ index: 0, cells: { "source name": "s1" } }],
+        rows: [{ index: 0, cells: { "source name": ["s1"] } }],
       };
       const issues = await v.validate(file, makeTemplate());
       expect(issues).toHaveLength(0);

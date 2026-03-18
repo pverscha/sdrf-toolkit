@@ -15,7 +15,7 @@ export class EmptyCellsValidator implements GlobalValidator {
 
     for (const row of file.rows) {
       for (const columnName of requiredColumns) {
-        const value = row.cells[columnName];
+        const value = (row.cells[columnName] ?? [])[0];
         if (value === undefined || value.trim() === "") {
           issues.push({
             level: "error",

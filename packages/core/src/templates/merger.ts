@@ -132,6 +132,7 @@ function resolveColumn(raw: RawColumnDefinition, sourceTemplate: string): Column
     allowNotAvailable: raw.allow_not_available ?? false,
     allowAnonymized: raw.allow_anonymized ?? false,
     allowPooled: raw.allow_pooled ?? false,
+    allowNorm: raw.allow_norm ?? false,
     validators: cellValidators,
     sourceTemplate,
   };

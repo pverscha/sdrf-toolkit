@@ -11,6 +11,6 @@ export interface SdrfRow {
   /** 0-based row index in the original file (excluding header row) */
   index: number;
 
-  /** Column name → cell value */
-  cells: Record<string, string>;
+  /** Column name → one value per occurrence of that column */
+  cells: Record<string, string[]>;
 }

@@ -213,7 +213,7 @@
         "cardinality": {
           "type": "string",
           "enum": ["multiple"],
-          "description": "Set to 'multiple' if more than one column with this name is allowed."
+          "description": "Set to 'multiple' if this column may appear more than once in the same file. Each occurrence holds one complete value."
         },
         "allow_not_applicable": {
           "type": "boolean",
@@ -233,6 +233,11 @@
         "allow_pooled": {
           "type": "boolean",
           "description": "Whether the value 'pooled' is accepted (for multiplexed samples).",
+          "default": false
+        },
+        "allow_norm": {
+          "type": "boolean",
+          "description": "Whether the value 'norm' is accepted (for normalization/reference samples).",
           "default": false
         },
         "error_level": {

@@ -17,6 +17,7 @@ export function makeColumnDef(overrides: Partial<ColumnDefinition> = {}): Column
     allowNotAvailable: false,
     allowAnonymized: false,
     allowPooled: false,
+    allowNorm: false,
     validators: [],
     sourceTemplate: "base",
     ...overrides,

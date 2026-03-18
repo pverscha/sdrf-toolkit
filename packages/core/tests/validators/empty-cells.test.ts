@@ -9,7 +9,7 @@ describe("EmptyCellsValidator", () => {
   it("reports no issues when required columns are filled", async () => {
     const file: SdrfFile = {
       headers: ["source name", "assay name"],
-      rows: [{ index: 0, cells: { "source name": "s1", "assay name": "a1" } }],
+      rows: [{ index: 0, cells: { "source name": ["s1"], "assay name": ["a1"] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(0);
@@ -18,7 +18,7 @@ describe("EmptyCellsValidator", () => {
   it("reports an error for an empty string in a required column", async () => {
     const file: SdrfFile = {
       headers: ["source name", "assay name"],
-      rows: [{ index: 0, cells: { "source name": "", "assay name": "a1" } }],
+      rows: [{ index: 0, cells: { "source name": [""], "assay name": ["a1"] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(1);
@@ -33,7 +33,7 @@ describe("EmptyCellsValidator", () => {
     });
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": "   " } }],
+      rows: [{ index: 0, cells: { "source name": ["   "] } }],
     };
     const issues = await v.validate(file, singleColTemplate);
     expect(issues).toHaveLength(1);
@@ -58,7 +58,7 @@ describe("EmptyCellsValidator", () => {
     });
     const file: SdrfFile = {
       headers: ["optional col"],
-      rows: [{ index: 0, cells: { "optional col": "" } }],
+      rows: [{ index: 0, cells: { "optional col": [""] } }],
     };
     const issues = await v.validate(file, template);
     expect(issues).toHaveLength(0);
@@ -67,7 +67,7 @@ describe("EmptyCellsValidator", () => {
   it("reports separate errors for each empty required column in a row", async () => {
     const file: SdrfFile = {
       headers: ["source name", "assay name"],
-      rows: [{ index: 0, cells: { "source name": "", "assay name": "" } }],
+      rows: [{ index: 0, cells: { "source name": [""], "assay name": [""] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(2);
@@ -80,9 +80,9 @@ describe("EmptyCellsValidator", () => {
     const file: SdrfFile = {
       headers: ["source name"],
       rows: [
-        { index: 0, cells: { "source name": "" } },
-        { index: 1, cells: { "source name": "s1" } },
-        { index: 2, cells: { "source name": "" } },
+        { index: 0, cells: { "source name": [""] } },
+        { index: 1, cells: { "source name": ["s1"] } },
+        { index: 2, cells: { "source name": [""] } },
       ],
     };
     const issues = await v.validate(file, singleColTemplate);
@@ -99,7 +99,7 @@ describe("EmptyCellsValidator", () => {
   it("includes row index in the issue", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 5, cells: { "source name": "" } }],
+      rows: [{ index: 5, cells: { "source name": [""] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues[0].rowIndex).toBe(5);

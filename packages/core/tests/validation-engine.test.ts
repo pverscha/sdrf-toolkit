@@ -19,6 +19,7 @@ function makeColDef(overrides: Partial<ColumnDefinition> = {}): ColumnDefinition
     allowNotAvailable: false,
     allowAnonymized: false,
     allowPooled: false,
+    allowNorm: false,
     validators: [],
     sourceTemplate: "base",
     ...overrides,
@@ -91,7 +92,7 @@ describe("ValidationEngine — validateCell", () => {
     expect((await engine.validateCell("abc", col)).valid).toBe(false);
   });
 
-  it("splits multi-value cells on semicolons for cardinality:multiple", async () => {
+  it("validates a single complete value for cardinality:multiple columns", async () => {
     const col = makeColDef({
       cardinality: "multiple",
       validators: [
@@ -102,14 +103,10 @@ describe("ValidationEngine — validateCell", () => {
       ],
     });
 
-    // All valid segments
-    const good = await engine.validateCell("HCD;ETD", col);
-    expect(good.valid).toBe(true);
-
-    // One invalid segment
-    const bad = await engine.validateCell("HCD;INVALID", col);
-    expect(bad.valid).toBe(false);
-    expect(bad.issues.some(i => i.value === "INVALID")).toBe(true);
+    // Each column occurrence is validated as one complete value
+    expect((await engine.validateCell("HCD", col)).valid).toBe(true);
+    expect((await engine.validateCell("ETD", col)).valid).toBe(true);
+    expect((await engine.validateCell("INVALID", col)).valid).toBe(false);
   });
 });
 
@@ -119,7 +116,7 @@ describe("ValidationEngine — validateFile", () => {
   it("returns valid when no issues", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": "sample1" } }],
+      rows: [{ index: 0, cells: { "source name": ["sample1"] } }],
     };
     const template = makeTemplate({
       columns: [
@@ -134,7 +131,7 @@ describe("ValidationEngine — validateFile", () => {
   it("reports error for unrecognized non-bracket column header", async () => {
     const file: SdrfFile = {
       headers: ["source name", "INVALID HEADER"],
-      rows: [{ index: 0, cells: { "source name": "s1", "INVALID HEADER": "x" } }],
+      rows: [{ index: 0, cells: { "source name": ["s1"], "INVALID HEADER": ["x"] } }],
     };
     const template = makeTemplate({
       columns: [makeColDef({ name: "source name" })],
@@ -150,7 +147,7 @@ describe("ValidationEngine — validateFile", () => {
       rows: [
         {
           index: 0,
-          cells: { "source name": "s1", "comment[extra]": "x", "characteristics[custom]": "y", "factor value[fx]": "z" },
+          cells: { "source name": ["s1"], "comment[extra]": ["x"], "characteristics[custom]": ["y"], "factor value[fx]": ["z"] },
         },
       ],
     };
@@ -165,7 +162,7 @@ describe("ValidationEngine — validateFile", () => {
   it("runs global validators", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": "sample1 " } }], // trailing whitespace
+      rows: [{ index: 0, cells: { "source name": ["sample1 "] } }], // trailing whitespace
     };
     const template = makeTemplate({
       columns: [makeColDef({ name: "source name" })],
@@ -179,7 +176,7 @@ describe("ValidationEngine — validateFile", () => {
   it("distinguishes errors vs warnings in the result", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
-      rows: [{ index: 0, cells: { "source name": "" } }], // empty required cell → error
+      rows: [{ index: 0, cells: { "source name": [""] } }], // empty required cell → error
     };
     const template = makeTemplate({
       columns: [makeColDef({ name: "source name", requirement: "required" })],
@@ -188,5 +185,36 @@ describe("ValidationEngine — validateFile", () => {
     const result = await engine.validateFile(file, template);
     expect(result.valid).toBe(false);
     expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  it("validates each occurrence of a cardinality:multiple column independently", async () => {
+    const file: SdrfFile = {
+      headers: ["source name", "comment[fragmentation]", "comment[fragmentation]"],
+      rows: [{
+        index: 0,
+        cells: {
+          "source name": ["S1"],
+          "comment[fragmentation]": ["HCD", "ETD"],
+        },
+      }],
+    };
+    const template = makeTemplate({
+      columns: [
+        makeColDef({ name: "source name" }),
+        makeColDef({
+          name: "comment[fragmentation]",
+          cardinality: "multiple",
+          validators: [
+            {
+              validatorName: "values",
+              params: { values: ["HCD", "CID", "ETD"], error_level: "error" },
+            },
+          ],
+        }),
+      ],
+    });
+    const result = await engine.validateFile(file, template);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
   });
 });

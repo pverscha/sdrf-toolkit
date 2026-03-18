@@ -10,6 +10,40 @@ export interface OntologyParams {
   examples?: string[];
 }
 
+interface ParsedOntologyValue {
+  /** Uppercase key → original-case value (e.g. "NT" → "homo sapiens", "AC" → "NCBITaxon:9606") */
+  fields: Map<string, string>;
+  /** true when the raw value contained no "=" (plain label or accession) */
+  isPlain: boolean;
+}
+
+/**
+ * Mirrors Python's `ontology_term_parser`: split on ";" to obtain key=value
+ * pairs, then split each pair on the first "=" only.
+ *
+ * Plain values (no "=") are stored under the "NT" key so callers can treat
+ * them uniformly.
+ */
+function parseStructuredValue(value: string): ParsedOntologyValue {
+  const fields = new Map<string, string>();
+  const segments = value.split(";");
+
+  if (segments.length === 1 && !segments[0].includes("=")) {
+    // Plain label ("homo sapiens") or plain accession ("NCBITaxon:9606")
+    fields.set("NT", segments[0].trim());
+    return { fields, isPlain: true };
+  }
+
+  for (const seg of segments) {
+    const eqIdx = seg.indexOf("=");
+    if (eqIdx === -1) continue;
+    const key = seg.slice(0, eqIdx).trim().toUpperCase();
+    const val = seg.slice(eqIdx + 1).trim(); // preserve original case for AC lookups
+    fields.set(key, val);
+  }
+  return { fields, isPlain: false };
+}
+
 export class OntologyValidator implements CellValidator {
   readonly name = "ontology";
 
@@ -22,7 +56,17 @@ export class OntologyValidator implements CellValidator {
     const ontologies = this.params.ontologies ?? [];
     const errorLevel = this.params.error_level ?? "error";
 
-    const match = this.ontologyRegistry.resolve(value, ontologies);
+    // Parse structured SDRF format (e.g. "NT=homo sapiens;AC=NCBITaxon:9606")
+    // or plain values ("homo sapiens", "NCBITaxon:9606").
+    const { fields, isPlain } = parseStructuredValue(value);
+    const ntValue = fields.get("NT"); // label — resolveIndex normalizes to lowercase
+    const acValue = fields.get("AC"); // accession — case-sensitive
+
+    // Resolve: NT label first (matches Python behaviour), AC as fallback
+    let match = ntValue ? this.ontologyRegistry.resolve(ntValue, ontologies) : null;
+    if (!match && acValue) {
+      match = this.ontologyRegistry.resolve(acValue, ontologies);
+    }
 
     if (!match) {
       const issue: ValidationIssue = {

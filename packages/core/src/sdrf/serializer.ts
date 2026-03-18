@@ -11,7 +11,12 @@ export function serializeSdrf(file: SdrfFile): string {
   lines.push(file.headers.join("\t"));
 
   for (const row of file.rows) {
-    const values = file.headers.map(h => row.cells[h] ?? "");
+    const columnCounts = new Map<string, number>();
+    const values = file.headers.map(h => {
+      const count = columnCounts.get(h) ?? 0;
+      columnCounts.set(h, count + 1);
+      return (row.cells[h] ?? [])[count] ?? "";
+    });
     lines.push(values.join("\t"));
   }
 

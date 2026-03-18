@@ -12,6 +12,7 @@ function makeCol(overrides: Partial<ColumnDefinition> = {}): ColumnDefinition {
     allowNotAvailable: false,
     allowAnonymized: false,
     allowPooled: false,
+    allowNorm: false,
     validators: [],
     sourceTemplate: "base",
     ...overrides,
@@ -51,5 +52,19 @@ describe("checkSpecialValue", () => {
     const col = makeCol({ allowAnonymized: true, allowPooled: false });
     expect(checkSpecialValue("anonymized", col)!.valid).toBe(true);
     expect(checkSpecialValue("pooled", col)!.valid).toBe(false);
+  });
+
+  it("returns valid=true when 'norm' is allowed", () => {
+    const col = makeCol({ allowNorm: true });
+    const result = checkSpecialValue("norm", col);
+    expect(result).not.toBeNull();
+    expect(result!.valid).toBe(true);
+  });
+
+  it("returns valid=false when 'norm' is not allowed", () => {
+    const col = makeCol({ allowNorm: false });
+    const result = checkSpecialValue("norm", col);
+    expect(result).not.toBeNull();
+    expect(result!.valid).toBe(false);
   });
 });

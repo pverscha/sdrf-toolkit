@@ -14,11 +14,11 @@ describe("parseSdrf", () => {
     expect(result.rows).toHaveLength(2);
     expect(result.rows[0]).toEqual({
       index: 0,
-      cells: { "source name": "sample1", "assay name": "assay1" },
+      cells: { "source name": ["sample1"], "assay name": ["assay1"] },
     });
     expect(result.rows[1]).toEqual({
       index: 1,
-      cells: { "source name": "sample2", "assay name": "assay2" },
+      cells: { "source name": ["sample2"], "assay name": ["assay2"] },
     });
   });
 
@@ -44,7 +44,7 @@ describe("parseSdrf", () => {
   it("fills missing cells with empty string", () => {
     const tsv = "a\tb\tc\nval1\tval2";
     const result = parseSdrf(tsv);
-    expect(result.rows[0].cells["c"]).toBe("");
+    expect(result.rows[0].cells["c"]).toEqual([""]);
   });
 });
 
@@ -53,8 +53,8 @@ describe("serializeSdrf", () => {
     const file = {
       headers: ["source name", "assay name"],
       rows: [
-        { index: 0, cells: { "source name": "sample1", "assay name": "assay1" } },
-        { index: 1, cells: { "source name": "sample2", "assay name": "assay2" } },
+        { index: 0, cells: { "source name": ["sample1"], "assay name": ["assay1"] } },
+        { index: 1, cells: { "source name": ["sample2"], "assay name": ["assay2"] } },
       ],
     };
 

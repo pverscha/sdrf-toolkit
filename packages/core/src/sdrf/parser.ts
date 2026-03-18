@@ -22,11 +22,12 @@ export function parseSdrf(tsv: string): SdrfFile {
 
   const rows: SdrfRow[] = [];
   for (let i = 1; i < lines.length; i++) {
-    const cells: Record<string, string> = {};
+    const cells: Record<string, string[]> = {};
     const values = lines[i].split("\t");
 
     for (let j = 0; j < headers.length; j++) {
-      cells[headers[j]] = values[j] ?? "";
+      if (!cells[headers[j]]) cells[headers[j]] = [];
+      cells[headers[j]].push(values[j] ?? "");
     }
 
     rows.push({ index: i - 1, cells });

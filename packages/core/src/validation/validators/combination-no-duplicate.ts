@@ -33,7 +33,7 @@ export class CombinationNoDuplicateValidator implements GlobalValidator {
     const issues: ValidationIssue[] = [];
 
     for (const row of file.rows) {
-      const key = columns.map(col => row.cells[col] ?? "").join("|");
+      const key = columns.map(col => (row.cells[col] ?? [])[0] ?? "").join("|");
 
       if (seen.has(key)) {
         issues.push({

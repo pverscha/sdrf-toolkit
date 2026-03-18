@@ -10,16 +10,18 @@ export class TrailingWhitespaceValidator implements GlobalValidator {
     const issues: ValidationIssue[] = [];
 
     for (const row of file.rows) {
-      for (const [columnName, value] of Object.entries(row.cells)) {
-        if (value !== value.trim()) {
-          issues.push({
-            level: "warning",
-            message: `Cell in column "${columnName}" at row ${row.index} has leading or trailing whitespace.`,
-            validatorName: this.name,
-            rowIndex: row.index,
-            columnName,
-            value,
-          });
+      for (const [columnName, values] of Object.entries(row.cells)) {
+        for (const value of values) {
+          if (value !== value.trim()) {
+            issues.push({
+              level: "warning",
+              message: `Cell in column "${columnName}" at row ${row.index} has leading or trailing whitespace.`,
+              validatorName: this.name,
+              rowIndex: row.index,
+              columnName,
+              value,
+            });
+          }
         }
       }
     }

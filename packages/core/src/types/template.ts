@@ -61,6 +61,7 @@ export interface RawColumnDefinition {
   allow_not_available?: boolean;
   allow_anonymized?: boolean;
   allow_pooled?: boolean;
+  allow_norm?: boolean;
   validators?: RawCellValidator[];
 }
 
@@ -117,7 +118,7 @@ export interface ColumnDefinition {
   requirement: "required" | "recommended" | "optional";
 
   /**
-   * Whether the column accepts multiple semicolon-separated values.
+   * Whether the column may appear more than once. Each occurrence is validated as one complete value.
    * Default: "single"
    */
   cardinality: "single" | "multiple";
@@ -129,6 +130,7 @@ export interface ColumnDefinition {
   allowNotAvailable: boolean;
   allowAnonymized: boolean;
   allowPooled: boolean;
+  allowNorm: boolean;
 
   /** Validators to run on cell values in this column */
   validators: CellValidatorDefinition[];

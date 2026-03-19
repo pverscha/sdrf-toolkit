@@ -38,9 +38,7 @@ export class CombinationNoDuplicateValidator implements GlobalValidator {
       if (seen.has(key)) {
         issues.push({
           level,
-          message:
-            `Duplicate combination of [${columns.join(", ")}] found at row ${row.index} ` +
-            `(first occurrence at row ${seen.get(key)}).`,
+          message: `Duplicate combination of [${columns.join(", ")}] found.`,
           validatorName: this.name,
           rowIndex: row.index,
           value: key,

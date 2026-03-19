@@ -15,7 +15,7 @@ export class TrailingWhitespaceValidator implements GlobalValidator {
           if (value !== value.trim()) {
             issues.push({
               level: "warning",
-              message: `Cell in column "${columnName}" at row ${row.index} has leading or trailing whitespace.`,
+              message: `Cell in column "${columnName}" has leading or trailing whitespace.`,
               validatorName: this.name,
               rowIndex: row.index,
               columnName,

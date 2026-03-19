@@ -1,6 +1,6 @@
 {
   "name": "@sdrf-toolkit/core",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.6",
   "type": "module",
   "description": "Parse, validate, and generate SDRF files driven by YAML template specifications",
   "main": "dist/index.js",

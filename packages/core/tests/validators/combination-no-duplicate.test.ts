@@ -50,7 +50,7 @@ describe("CombinationNoDuplicateValidator", () => {
       expect(issues).toHaveLength(2);
     });
 
-    it("references the first occurrence row in the duplicate message", async () => {
+    it("sets rowIndex to the duplicate row's index", async () => {
       const file: SdrfFile = {
         headers: ["source name", "assay name"],
         rows: [
@@ -59,8 +59,7 @@ describe("CombinationNoDuplicateValidator", () => {
         ],
       };
       const issues = await v.validate(file, makeTemplate());
-      expect(issues[0].message).toMatch(/row 0/);
-      expect(issues[0].message).toMatch(/row 5/);
+      expect(issues[0].rowIndex).toBe(5);
     });
   });
 

@@ -19,7 +19,7 @@ export class EmptyCellsValidator implements GlobalValidator {
         if (value === undefined || value.trim() === "") {
           issues.push({
             level: "error",
-            message: `Required column "${columnName}" is empty at row ${row.index}.`,
+            message: `Required column "${columnName}" is empty.`,
             validatorName: this.name,
             rowIndex: row.index,
             columnName,

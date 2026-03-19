@@ -77,7 +77,7 @@ ontologies:
   - id: pride
     full_name: PRIDE Controlled Vocabulary
     default_prefix: PRIDE
-    additional_prefixes: []
+    additional_prefixes: [MS]
     source_url: https://raw.githubusercontent.com/PRIDE-Utilities/pride-ontology/master/pride_cv.obo
     format: obo
     notes: Hosted on GitHub, not OBO Foundry.

@@ -55,3 +55,12 @@ export function getDescendants(index: OntologyIndex, parentAccession: string): s
 
   return result;
 }
+
+/**
+ * Returns the direct (immediate) child accessions of parentAccession.
+ * Unlike getDescendants, this does NOT traverse transitively — only one level down.
+ * Returns an empty array if the parent has no children or is not found.
+ */
+export function getDirectDescendants(index: OntologyIndex, parentAccession: string): string[] {
+  return index.getChildrenOf().get(parentAccession) ?? [];
+}

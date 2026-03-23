@@ -4,7 +4,7 @@ import { readIndexFile } from "./parsers/index-parser.js";
 import { readManifestFile } from "./parsers/manifest-parser.js";
 import { OntologyIndex } from "./ontology-index.js";
 import { searchIndex, resolveIndex } from "./search.js";
-import { isDescendantOf, getDescendants } from "./hierarchy.js";
+import { isDescendantOf, getDescendants, getDirectDescendants } from "./hierarchy.js";
 import { Updater } from "./updater.js";
 import type {
   OntologyRegistryOptions,
@@ -125,6 +125,14 @@ export class OntologyRegistry {
   }
 
   /**
+   * Returns the `updatedAt` timestamp of the locally installed ontology index
+   * (from manifest.json), or null if no manifest is present.
+   */
+  getVersion(): string | null {
+    return this.manifest?.updatedAt ?? null;
+  }
+
+  /**
    * Search for matching terms across the specified ontologies.
    * Results are merged across ontologies and sorted by score descending.
    */
@@ -177,5 +185,15 @@ export class OntologyRegistry {
     const index = this.indexes.get(ontology);
     if (!index) return [];
     return getDescendants(index, parentAccession);
+  }
+
+  /**
+   * Returns the direct (immediate) child accessions of parentAccession in the
+   * given ontology. Unlike getDescendants, this does NOT traverse transitively.
+   */
+  getDirectDescendants(parentAccession: string, ontology: string): string[] {
+    const index = this.indexes.get(ontology);
+    if (!index) return [];
+    return getDirectDescendants(index, parentAccession);
   }
 }

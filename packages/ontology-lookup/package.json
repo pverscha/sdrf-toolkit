@@ -1,6 +1,6 @@
 {
   "name": "@sdrf-toolkit/ontology-lookup",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.3",
   "type": "module",
   "description": "Lightweight local ontology term lookup, synonym resolution, and hierarchy traversal for Node.js",
   "main": "dist/index.js",

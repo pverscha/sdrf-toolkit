@@ -24,11 +24,12 @@ export interface OntologyIndexMeta {
   defaultPrefix: string;
   additionalPrefixes: string[];
   sourceVersion: string;
+  indexVersion: string;
   sourceUrl: string;
   builtAt: string;
   termCount: number;
   obsoleteTermCount: number;
-  schemaVersion: "1.0";
+  schemaVersion: string;
 }
 
 export interface OntologyIndexFile {
@@ -54,7 +55,7 @@ export interface ManifestEntry {
 }
 
 export interface Manifest {
-  schemaVersion: "1.0";
+  schemaVersion: string;
   updatedAt: string;
   ontologies: Record<string, ManifestEntry>;
 }

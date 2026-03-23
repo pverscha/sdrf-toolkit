@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runPipeline } from "./pipeline.js";
 import { closeLogFile, log } from "./utils.js";
+import { INDEX_VERSION } from "./version.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -12,7 +13,7 @@ const { values } = parseArgs({
     "data-dir": { type: "string", default: "./data" },
     ontologies: { type: "string" },
     force: { type: "boolean", default: false },
-    "index-version": { type: "string", default: "1.0.0" },
+    "index-version": { type: "string", default: INDEX_VERSION },
   },
   allowPositionals: false,
 });

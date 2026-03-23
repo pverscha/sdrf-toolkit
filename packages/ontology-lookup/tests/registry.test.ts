@@ -279,6 +279,159 @@ describe("OntologyRegistry", () => {
   });
 
   // -------------------------------------------------------------------------
+  // getDirectDescendants()
+  // -------------------------------------------------------------------------
+
+  describe("getDirectDescendants()", () => {
+    it("returns direct children only", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["test"] });
+      await registry.initialize();
+      const children = registry.getDirectDescendants("TEST:0001", "test");
+      expect(children).toContain("TEST:0002");
+      expect(children).toHaveLength(1);
+    });
+
+    it("does not include grandchildren", async () => {
+      const terms: OntologyTermEntry[] = [
+        { accession: "T:001", label: "root",       synonyms: [], parentIds: [],        obsolete: false, replacedBy: [], xrefs: [] },
+        { accession: "T:002", label: "child",      synonyms: [], parentIds: ["T:001"], obsolete: false, replacedBy: [], xrefs: [] },
+        { accession: "T:003", label: "grandchild", synonyms: [], parentIds: ["T:002"], obsolete: false, replacedBy: [], xrefs: [] },
+      ];
+      writeGzipped(tmpDir, "deep.json.gz", makeIndexFile("deep", terms));
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["deep"] });
+      await registry.initialize();
+      const children = registry.getDirectDescendants("T:001", "deep");
+      expect(children).toEqual(["T:002"]);
+      expect(children).not.toContain("T:003");
+    });
+
+    it("returns empty array for leaf node", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["test"] });
+      await registry.initialize();
+      expect(registry.getDirectDescendants("TEST:0002", "test")).toEqual([]);
+    });
+
+    it("returns empty array for unknown ontology", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["test"] });
+      await registry.initialize();
+      expect(registry.getDirectDescendants("TEST:0001", "unknown")).toEqual([]);
+    });
+
+    it("returns empty array for unknown accession", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["test"] });
+      await registry.initialize();
+      expect(registry.getDirectDescendants("TEST:9999", "test")).toEqual([]);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // additionalPrefixes support
+  // -------------------------------------------------------------------------
+
+  describe("additionalPrefixes support", () => {
+    const prideTerms: OntologyTermEntry[] = [
+      {
+        accession: "PRIDE:0001",
+        label: "pride root term",
+        synonyms: [],
+        parentIds: [],
+        obsolete: false,
+        replacedBy: [],
+        xrefs: [],
+      },
+      {
+        accession: "MS:0001",
+        label: "ms child term",
+        synonyms: [],
+        parentIds: ["PRIDE:0001"],
+        obsolete: false,
+        replacedBy: [],
+        xrefs: [],
+      },
+      {
+        accession: "MS:0002",
+        label: "ms grandchild term",
+        synonyms: [],
+        parentIds: ["MS:0001"],
+        obsolete: false,
+        replacedBy: [],
+        xrefs: [],
+      },
+    ];
+
+    beforeEach(() => {
+      const indexFile: OntologyIndexFile = {
+        meta: {
+          ontology: "pride",
+          fullName: "PRIDE Ontology",
+          defaultPrefix: "PRIDE",
+          additionalPrefixes: ["MS"],
+          sourceVersion: "2024-01-01",
+          sourceUrl: "http://example.com/pride.obo",
+          builtAt: "2024-01-01T00:00:00Z",
+          termCount: prideTerms.length,
+          obsoleteTermCount: 0,
+          schemaVersion: "1.0",
+        },
+        terms: prideTerms,
+      };
+      writeGzipped(tmpDir, "pride.json.gz", indexFile);
+    });
+
+    it("resolves an MS: accession from a PRIDE ontology that declares MS as an additional prefix", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["pride"] });
+      await registry.initialize();
+      const term = registry.resolve("MS:0001", ["pride"]);
+      expect(term).not.toBeNull();
+      expect(term!.accession).toBe("MS:0001");
+    });
+
+    it("search returns the MS: term from a PRIDE ontology that declares MS as an additional prefix", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["pride"] });
+      await registry.initialize();
+      const results = registry.search("MS:0001", ["pride"]);
+      expect(results.some(r => r.term.accession === "MS:0001")).toBe(true);
+    });
+
+    it("getDirectDescendants returns an MS: child accession for a PRIDE: parent", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["pride"] });
+      await registry.initialize();
+      const children = registry.getDirectDescendants("PRIDE:0001", "pride");
+      expect(children).toContain("MS:0001");
+      expect(children).not.toContain("MS:0002");
+    });
+
+    it("isDescendantOf returns true when child has a different prefix than the parent", async () => {
+      const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["pride"] });
+      await registry.initialize();
+      expect(registry.isDescendantOf("MS:0001", "PRIDE:0001", "pride")).toBe(true);
+      expect(registry.isDescendantOf("MS:0002", "PRIDE:0001", "pride")).toBe(true);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getVersion()
+  // -------------------------------------------------------------------------
+
+  it("getVersion() returns updatedAt from manifest when present", async () => {
+    const manifest = {
+      schemaVersion: "1.0",
+      updatedAt: "2024-03-19T12:00:00Z",
+      ontologies: {},
+    };
+    writeFileSync(join(tmpDir, "manifest.json"), JSON.stringify(manifest));
+    const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["test"] });
+    await registry.initialize();
+    expect(registry.getVersion()).toBe("2024-03-19T12:00:00Z");
+  });
+
+  it("getVersion() returns null when no manifest is present", async () => {
+    const registry = new OntologyRegistry({ indexDir: tmpDir, ontologies: ["test"] });
+    await registry.initialize();
+    expect(registry.getVersion()).toBeNull();
+  });
+
+  // -------------------------------------------------------------------------
   // update()
   // -------------------------------------------------------------------------
 

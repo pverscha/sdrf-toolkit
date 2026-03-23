@@ -2,6 +2,7 @@ import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { BuildResult, Manifest, ManifestEntry } from "./types.js";
 import { log } from "./utils.js";
+import { SCHEMA_VERSION } from "./version.js";
 
 /**
  * Writes `manifest.json` and `checksums.sha256` to `outputDir` from the pipeline results.
@@ -24,7 +25,7 @@ export async function buildManifest(
   indexVersion: string
 ): Promise<void> {
   const manifest: Manifest = {
-    schemaVersion: "1.0",
+    schemaVersion: SCHEMA_VERSION,
     updatedAt: new Date().toISOString(),
     ontologies: {},
   };

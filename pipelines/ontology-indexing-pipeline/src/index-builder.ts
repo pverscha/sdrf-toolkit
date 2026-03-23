@@ -11,6 +11,7 @@ import type {
   VariantResult,
 } from "./types.js";
 import { ensureDir, log, sha256OfFile } from "./utils.js";
+import { SCHEMA_VERSION } from "./version.js";
 
 /**
  * Serialises `terms` into an `OntologyIndexFile`, compresses it with gzip (level 9), and
@@ -51,11 +52,12 @@ export async function buildIndex(
       defaultPrefix: config.default_prefix,
       additionalPrefixes: config.additional_prefixes,
       sourceVersion,
+      indexVersion,
       sourceUrl: config.source_url,
       builtAt: new Date().toISOString(),
       termCount: nonObsolete.length,
       obsoleteTermCount: obsolete.length,
-      schemaVersion: "1.0",
+      schemaVersion: SCHEMA_VERSION,
     },
     terms,
   };

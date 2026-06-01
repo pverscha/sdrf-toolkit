@@ -1,0 +1,21 @@
+{
+  "file": "valid/pxd004684.sdrf.tsv",
+  "templates": [
+    "dia-acquisition"
+  ],
+  "has_errors": true,
+  "has_warnings": false,
+  "error_count": 1,
+  "warning_count": 0,
+  "error_categories": [
+    "INVALID_VALUE"
+  ],
+  "warning_categories": [],
+  "errors": [
+    {
+      "message": "Invalid value 'NT=Data-Independent Acquisition;AC=NCIT:C161786' - must be one of the allowed values",
+      "category": "INVALID_VALUE"
+    }
+  ],
+  "warnings": []
+}

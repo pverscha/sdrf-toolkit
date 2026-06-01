@@ -1,0 +1,14 @@
+{
+  "file": "valid/pxd008934.sdrf.tsv",
+  "templates": [
+    "human"
+  ],
+  "has_errors": false,
+  "has_warnings": false,
+  "error_count": 0,
+  "warning_count": 0,
+  "error_categories": [],
+  "warning_categories": [],
+  "errors": [],
+  "warnings": []
+}

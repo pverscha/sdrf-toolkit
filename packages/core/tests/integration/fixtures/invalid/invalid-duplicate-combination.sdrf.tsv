@@ -1,0 +1,3 @@
+source name	assay name	comment[label]	comment[data file]
+Sample1	run1	label free sample	file1.mzML
+Sample1	run1	label free sample	file2.mzML

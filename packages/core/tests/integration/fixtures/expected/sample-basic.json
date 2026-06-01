@@ -1,0 +1,45 @@
+{
+  "file": "valid/sample-basic.sdrf.tsv",
+  "templates": [
+    "vertebrates"
+  ],
+  "has_errors": true,
+  "has_warnings": true,
+  "error_count": 5,
+  "warning_count": 1,
+  "error_categories": [
+    "EMPTY_CELL",
+    "MISSING_REQUIRED_COLUMN"
+  ],
+  "warning_categories": [
+    "INVALID_VALUE"
+  ],
+  "errors": [
+    {
+      "message": "Empty value found Row: 1, Column: characteristics[disease], Source: Sample1",
+      "category": "EMPTY_CELL"
+    },
+    {
+      "message": "Empty value found Row: 2, Column: characteristics[disease], Source: Sample2",
+      "category": "EMPTY_CELL"
+    },
+    {
+      "message": "Empty value found Row: 3, Column: characteristics[disease], Source: Sample3",
+      "category": "EMPTY_CELL"
+    },
+    {
+      "message": "Empty value found Row: 4, Column: characteristics[disease], Source: Sample4",
+      "category": "EMPTY_CELL"
+    },
+    {
+      "message": "Required column 'characteristics[developmental stage]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    }
+  ],
+  "warnings": [
+    {
+      "message": "Invalid value 'DDA' - must be one of the allowed values",
+      "category": "INVALID_VALUE"
+    }
+  ]
+}

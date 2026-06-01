@@ -1,0 +1,33 @@
+{
+  "file": "valid/pxd001819.sdrf.tsv",
+  "templates": [
+    "vertebrates"
+  ],
+  "has_errors": true,
+  "has_warnings": false,
+  "error_count": 4,
+  "warning_count": 0,
+  "error_categories": [
+    "MISSING_REQUIRED_COLUMN"
+  ],
+  "warning_categories": [],
+  "errors": [
+    {
+      "message": "Required column 'technology type' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'characteristics[organism]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'characteristics[biological replicate]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'characteristics[developmental stage]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    }
+  ],
+  "warnings": []
+}

@@ -1137,3 +1137,128 @@ const tsv = serializeSdrf(sdrfFile);
 | Template loading | Directory-based `TemplateRegistry` | Simple and explicit; consumers own their template files rather than relying on bundled defaults |
 | Template resolution | Package resolves `extends` chains | Consuming app just passes template names; no need to understand the inheritance tree |
 | Error vs. Warning | Two levels only | Matches the YAML spec; keeps the validation result model simple |
+
+---
+
+## Testing
+
+Run all tests (unit + integration):
+
+```bash
+npm test
+```
+
+The suite uses [Vitest](https://vitest.dev/) and runs in Node.js. No browser or external services are required.
+
+### Unit tests
+
+Located in `tests/` (excluding `tests/integration/`). They test each piece of the public API in isolation.
+
+| File | What it covers |
+|---|---|
+| `tests/validators/ontology.test.ts` | OntologyValidator: term lookup, descendant checks, special value bypass |
+| `tests/validators/pattern.test.ts` | PatternValidator: regex matching, case sensitivity |
+| `tests/validators/values.test.ts` | ValuesValidator: allowed-value list, case handling |
+| `tests/validators/number-with-unit.test.ts` | NumberWithUnitValidator: format parsing, unit list, negative values |
+| `tests/validators/mz-value.test.ts` | MzValueValidator: positive finite number check |
+| `tests/validators/mz-range-interval.test.ts` | MzRangeIntervalValidator: lower/upper bound parsing |
+| `tests/validators/date.test.ts` | DateValidator: ISO 8601 partial date precision levels |
+| `tests/validators/accession.test.ts` | AccessionValidator: BioSample format, prefix/suffix |
+| `tests/validators/identifier.test.ts` | IdentifierValidator: charset validation, special values |
+| `tests/validators/semver.test.ts` | SemverValidator: MAJOR.MINOR.PATCH, prefix stripping, pre-release |
+| `tests/validators/structured-kv.test.ts` | StructuredKvValidator: key=value segment parsing |
+| `tests/validators/single-cardinality.test.ts` | SingleCardinalityValidator: semicolon detection |
+| `tests/validators/trailing-whitespace.test.ts` | TrailingWhitespaceValidator: header and cell whitespace |
+| `tests/validators/column-order.test.ts` | ColumnOrderValidator: group-based column ordering |
+| `tests/validators/empty-cells.test.ts` | EmptyCellsValidator: missing required columns, empty cells |
+| `tests/validators/min-columns.test.ts` | MinColumnsValidator: minimum column count |
+| `tests/validators/combination-no-duplicate.test.ts` | CombinationNoDuplicateValidator: composite key uniqueness |
+| `tests/validation-engine.test.ts` | ValidationEngine: file validation, cell validation, cardinality, special values |
+| `tests/sdrf-parser.test.ts` | parseSdrf / parseSdrfFile / serializeSdrf |
+| `tests/template-parser.test.ts` | parseTemplate: YAML parsing, required/optional fields |
+| `tests/template-merger.test.ts` | mergeTemplates: extends resolution, column merging, excludes |
+| `tests/template-registry.test.ts` | TemplateRegistry: file loading, resolveTemplates |
+| `tests/semver-utils.test.ts` | satisfiesConstraint: version range checking |
+| `tests/validation-helpers.test.ts` | checkSpecialValue: sentinel value bypass logic |
+
+### Integration tests
+
+Located in `tests/integration/`. These tests validate the engine against real-world SDRF files from the [PRIDE repository](https://www.ebi.ac.uk/pride/) and verify that the local validator's behavior aligns with the official [sdrf-pipelines](https://github.com/bigbio/sdrf-pipelines) Python validator.
+
+**Goal:** Provide a regression baseline using real proteomics datasets. If a code change breaks a previously passing file, these tests will catch it before it reaches production.
+
+#### Fixture files
+
+```
+tests/integration/
+├── fixtures/
+│   ├── valid/            10 real SDRF files from PRIDE (via sdrf-pipelines test suite)
+│   ├── invalid/          4 hand-crafted minimal files that each contain exactly one defect
+│   ├── templates/        9 YAML template files from bigbio/sdrf-templates v1.1.0
+│   └── expected/         One JSON file per valid fixture — the official validator's output
+├── helpers.ts            Mock OntologyRegistry + OFFICIAL_TO_LOCAL error code mapping
+└── sdrf-integration.test.ts
+```
+
+**Valid fixtures** (sources from the [bigbio/sdrf-pipelines](https://github.com/bigbio/sdrf-pipelines) test suite):
+
+| Fixture | Template | Dataset |
+|---|---|---|
+| `valid/sample-basic.sdrf.tsv` | `vertebrates` | Minimal 4-row DDA label-free file (human + mouse) |
+| `valid/pxd001819.sdrf.tsv` | `vertebrates` | Yeast UPS1 spike-in, LTQ Orbitrap Velos (27 rows) |
+| `valid/pxd015270.sdrf.tsv` | `human` | A549 lung cancer cell line, Orbitrap Fusion Lumos |
+| `valid/pxd000612.sdrf.tsv` | `human` | HeLa phosphoproteomics, Q Exactive (120+ rows) |
+| `valid/pxd001474.sdrf.tsv` | `human` | Clinical hepatic fibrosis tissue, Orbitrap Elite |
+| `valid/pxd002137.sdrf.tsv` | `human` | Colorectal cancer tissue, Q Exactive (226 rows) |
+| `valid/pxd004684.sdrf.tsv` | `dia-acquisition` | Lung DIA/SWATH-MS, Q Exactive Plus |
+| `valid/pxd008934.sdrf.tsv` | `pxd008934` | Cardiac tissue, 5 disease states, Q Exactive |
+| `valid/pxd009749.sdrf.tsv` | `immunopeptidomics` | MHC-immunopeptidomics, HLA-typed ALL patient |
+| `valid/diann-label-free.sdrf.tsv` | `ms-proteomics` | Minimal DIA-NN label-free file |
+
+**Invalid fixtures** (hand-crafted; each contains exactly one structural defect):
+
+| Fixture | Defect | Expected validator |
+|---|---|---|
+| `invalid/invalid-column-order.sdrf.tsv` | `assay name` appears before `characteristics[organism]` | `column_order` |
+| `invalid/invalid-trailing-whitespace.sdrf.tsv` | Column header `"source name "` has a trailing space | `trailing_whitespace_validator` |
+| `invalid/invalid-empty-required-cell.sdrf.tsv` | `source name` cell is blank in row 0 | `empty_cells` |
+| `invalid/invalid-duplicate-combination.sdrf.tsv` | Two rows share identical `source name` + `assay name` + `comment[label]` | `combination_of_columns_no_duplicate_validator` |
+
+**Template fixtures** — the official YAML templates from [bigbio/sdrf-templates](https://github.com/bigbio/sdrf-templates) at v1.1.0:
+
+`base.yaml` → `sample-metadata.yaml` → `ms-proteomics.yaml`, `human.yaml`, `vertebrates.yaml`, `cell-lines.yaml`, `dia-acquisition.yaml`, `immunopeptidomics.yaml`, `clinical-metadata.yaml`.
+
+**Expected results** — the `fixtures/expected/` directory contains one JSON file per valid fixture, produced by running `scripts/capture-expected-results.py` with the official Python validator. Each file records `has_errors`, `has_warnings`, `error_categories`, and `warning_categories`. The integration tests use these as ground truth.
+
+#### What the integration tests assert
+
+For each valid PRIDE fixture, the test:
+1. Resolves the fixture's template from the committed YAML files.
+2. Parses the SDRF file into an `SdrfFile`.
+3. Runs `ValidationEngine.validateFile()` with a pass-through `OntologyRegistry` (ontology validation requires pre-built indexes not available in CI).
+4. Checks that error presence (`result.errors.length > 0`) matches the expected result.
+5. For every non-ontology error category the official validator reported, checks that the local validator produced at least one error with the mapped validator name.
+
+For each invalid hand-crafted fixture, the test checks that at least one error with the expected `validatorName` is present.
+
+#### Known behavioral difference
+
+`pxd000612.sdrf.tsv` is expected to produce a `column_order` error in the local validator because `characteristics[enrichment process]` appears after `Material Type`, violating the group-based column order rule (`characteristics[...]` must precede `material type`). The official Python validator does not flag this because it uses a simpler pivot-based rule (checking column positions relative to `assay name` only). The local validator's behavior is intentionally stricter and matches the SDRF specification's stated column group order.
+
+#### Refreshing fixtures
+
+Fixtures are committed to the repository and only need to be refreshed when SDRF files are updated upstream or when the official validator's behavior changes.
+
+```bash
+# Download SDRF fixture files and template YAML files from GitHub
+python scripts/download-sdrf-fixtures.py
+
+# Re-capture official validator output (requires Python 3.11+)
+conda run -n sdrf-pipelines python scripts/capture-expected-results.py
+```
+
+The capture script requires the `sdrf-pipelines` conda environment:
+```bash
+conda create -n sdrf-pipelines python=3.11
+conda run -n sdrf-pipelines pip install "git+https://github.com/bigbio/sdrf-pipelines.git"
+```

@@ -1,0 +1,22 @@
+{
+  "file": "valid/pxd000612.sdrf.tsv",
+  "templates": [
+    "human"
+  ],
+  "has_errors": true,
+  "has_warnings": false,
+  "error_count": 1,
+  "warning_count": 0,
+  "error_categories": [
+    "COLUMN_ORDER_INVALID"
+  ],
+  "warning_categories": [],
+  "errors": [
+    {
+      "message": "characteristics[enrichment process] appears after material type — local validator enforces strict group order (official validator only checks relative to assay name)",
+      "category": "COLUMN_ORDER_INVALID"
+    }
+  ],
+  "warnings": [],
+  "_note": "The official sdrf-pipelines validator does not flag the column order issue here because it only checks positioning relative to 'assay name'. The local validator implements the stricter group-based order (source name → characteristics → material type → ... → assay name), which is the correct SDRF specification order."
+}

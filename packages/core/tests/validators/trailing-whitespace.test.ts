@@ -15,29 +15,28 @@ describe("TrailingWhitespaceValidator", () => {
     expect(issues).toHaveLength(0);
   });
 
-  it("reports a warning for cells with trailing whitespace", async () => {
+  it("reports an error for cells with trailing whitespace", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
       rows: [{ index: 0, cells: { "source name": ["sample1 "] } }],
     };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(1);
-    expect(issues[0].level).toBe("warning");
+    expect(issues[0].level).toBe("error");
     expect(issues[0].columnName).toBe("source name");
     expect(issues[0].validatorName).toBe("trailing_whitespace_validator");
   });
 
-  it("reports a warning for cells with leading whitespace", async () => {
+  it("does not flag cells with only leading whitespace", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
       rows: [{ index: 0, cells: { "source name": [" sample1"] } }],
     };
     const issues = await v.validate(file, makeTemplate());
-    expect(issues).toHaveLength(1);
-    expect(issues[0].level).toBe("warning");
+    expect(issues).toHaveLength(0);
   });
 
-  it("reports a warning for cells with both leading and trailing whitespace", async () => {
+  it("reports an error for cells with both leading and trailing whitespace", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
       rows: [{ index: 0, cells: { "source name": ["  sample1  "] } }],
@@ -46,24 +45,24 @@ describe("TrailingWhitespaceValidator", () => {
     expect(issues).toHaveLength(1);
   });
 
-  it("reports one warning per offending cell across multiple columns", async () => {
+  it("reports one error per offending cell across multiple columns", async () => {
     const file: SdrfFile = {
       headers: ["source name", "assay name"],
       rows: [
-        { index: 0, cells: { "source name": ["s1 "], "assay name": [" a1"] } },
+        { index: 0, cells: { "source name": ["s1 "], "assay name": ["a1"] } },
       ],
     };
     const issues = await v.validate(file, makeTemplate());
-    expect(issues).toHaveLength(2);
+    expect(issues).toHaveLength(1);
   });
 
-  it("reports one warning per offending cell across multiple rows", async () => {
+  it("reports one error per offending cell across multiple rows", async () => {
     const file: SdrfFile = {
       headers: ["source name"],
       rows: [
         { index: 0, cells: { "source name": ["s1 "] } },
-        { index: 1, cells: { "source name": [" s2"] } },
-        { index: 2, cells: { "source name": ["s3"] } },
+        { index: 1, cells: { "source name": ["s2"] } },
+        { index: 2, cells: { "source name": ["s3 "] } },
       ],
     };
     const issues = await v.validate(file, makeTemplate());

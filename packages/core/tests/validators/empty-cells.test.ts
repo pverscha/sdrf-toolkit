@@ -91,7 +91,7 @@ describe("EmptyCellsValidator", () => {
   });
 
   it("reports no issues for an empty file (no rows)", async () => {
-    const file: SdrfFile = { headers: ["source name"], rows: [] };
+    const file: SdrfFile = { headers: ["source name", "assay name"], rows: [] };
     const issues = await v.validate(file, makeTemplate());
     expect(issues).toHaveLength(0);
   });

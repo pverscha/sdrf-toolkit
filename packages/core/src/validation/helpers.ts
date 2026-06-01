@@ -26,7 +26,10 @@ export function checkSpecialValue(
   } else if (lower === "pooled") {
     isAllowed = columnDef.allowPooled;
   } else if (lower === "norm") {
-    isAllowed = columnDef.allowNorm;
+    // The official sdrf-pipelines OntologyValidator always adds NORM to its allowed-labels list,
+    // so "norm" is implicitly valid for any ontology-validated column even without an explicit flag.
+    const hasOntologyValidator = columnDef.validators.some(v => v.validatorName === "ontology");
+    isAllowed = columnDef.allowNorm || hasOntologyValidator;
   } else {
     return null;
   }

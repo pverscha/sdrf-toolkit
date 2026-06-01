@@ -41,6 +41,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: packages/core/package-lock.json
 
+      - name: Install ontology-lookup dependencies
+        working-directory: packages/ontology-lookup
+        run: npm ci
+
+      - name: Build ontology-lookup
+        working-directory: packages/ontology-lookup
+        run: npm run build
+
       - name: Install dependencies
         working-directory: packages/core
         run: npm ci

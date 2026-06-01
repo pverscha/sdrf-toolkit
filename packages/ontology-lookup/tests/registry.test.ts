@@ -116,17 +116,6 @@ describe("OntologyRegistry", () => {
     expect(registry.isLoaded("test")).toBe(false);
   });
 
-  it("loads variant index when variant option is specified", async () => {
-    writeGzipped(tmpDir, "test-pruned.json.gz", makeIndexFile("test", testTerms));
-    const registry = new OntologyRegistry({
-      indexDir: tmpDir,
-      ontologies: ["test"],
-      ontologyOptions: { test: { variant: "pruned" } },
-    });
-    await registry.initialize();
-    expect(registry.isLoaded("test")).toBe(true);
-  });
-
   // -------------------------------------------------------------------------
   // search()
   // -------------------------------------------------------------------------

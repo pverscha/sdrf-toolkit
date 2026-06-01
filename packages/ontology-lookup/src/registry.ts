@@ -1,11 +1,11 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { readIndexFile } from "./parsers/index-parser.js";
+import { openSqliteIndex } from "./parsers/sqlite-parser.js";
 import { readManifestFile } from "./parsers/manifest-parser.js";
 import { OntologyIndex } from "./ontology-index.js";
-import { searchIndex, resolveIndex } from "./search.js";
-import { isDescendantOf, getDescendants, getDirectDescendants } from "./hierarchy.js";
 import { Updater } from "./updater.js";
+import type { IOntologyIndex } from "./ontology-index-interface.js";
 import type {
   OntologyRegistryOptions,
   OntologyTerm,
@@ -15,7 +15,7 @@ import type {
 
 export class OntologyRegistry {
   private readonly options: OntologyRegistryOptions;
-  private readonly indexes = new Map<string, OntologyIndex>();
+  private readonly indexes = new Map<string, IOntologyIndex>();
   private manifest: Manifest | null = null;
   private readonly updater = new Updater();
 
@@ -24,50 +24,85 @@ export class OntologyRegistry {
   }
 
   /**
-   * Load specified ontologies from disk into memory.
+   * Load specified ontologies from disk.
    * Call once at application startup before using search/resolve/hierarchy methods.
    */
   async initialize(): Promise<void> {
     const { indexDir, ontologies } = this.options;
 
-    // Load local manifest if present
     const manifestPath = join(indexDir, "manifest.json");
     if (existsSync(manifestPath)) {
       this.manifest = readManifestFile(manifestPath);
     }
 
-    // Determine which ontology IDs to load
     let ontologyIds: string[];
     if (ontologies && ontologies.length > 0) {
       ontologyIds = ontologies;
     } else {
-      // Auto-discover: glob all *.json.gz in indexDir, derive IDs from file names
       if (!existsSync(indexDir)) return;
-      ontologyIds = readdirSync(indexDir)
-        .filter(f => f.endsWith(".json.gz"))
-        .map(f => f.slice(0, -".json.gz".length));
+      // Auto-discover: *.json.gz (in-memory indexes) and *.db (SQLite indexes)
+      const files = readdirSync(indexDir);
+      const jsonIds = files
+        .filter((f) => f.endsWith(".json.gz"))
+        .map((f) => f.slice(0, -".json.gz".length));
+      const dbIds = files
+        .filter((f) => f.endsWith(".db") && !f.endsWith(".db.gz"))
+        .map((f) => f.slice(0, -".db".length));
+      // Merge, deduplicating (db takes precedence if both somehow exist)
+      ontologyIds = [...new Set([...jsonIds, ...dbIds])];
     }
 
     for (const id of ontologyIds) {
-      this.loadOntology(id);
+      await this.loadOntology(id);
     }
   }
 
-  private loadOntology(id: string): void {
-    const { indexDir, ontologyOptions } = this.options;
-    const variant = ontologyOptions?.[id]?.variant;
+  private async loadOntology(id: string): Promise<void> {
+    const { indexDir } = this.options;
+    const manifestEntry = this.manifest?.ontologies[id];
+    const manifestFileName = manifestEntry?.fileName;
 
-    let fileName: string;
+    let filePath: string;
+    let isSqlite = false;
 
-    if (variant) {
-      const variantInfo = this.manifest?.ontologies[id]?.variants?.[variant];
-      fileName = variantInfo?.fileName ?? `${id}-${variant}.json.gz`;
+    if (manifestFileName) {
+      if (manifestFileName.endsWith(".db.gz")) {
+        // SQLite index: manifest records the .db.gz name; we open the decompressed .db
+        filePath = join(indexDir, manifestFileName);
+        isSqlite = true;
+      } else {
+        filePath = join(indexDir, manifestFileName);
+      }
     } else {
-      const manifestEntry = this.manifest?.ontologies[id];
-      fileName = manifestEntry?.fileName ?? `${id}.json.gz`;
+      // No manifest entry: try .db first, then .json.gz
+      const dbPath = join(indexDir, `${id}.db`);
+      const dbGzPath = join(indexDir, `${id}.db.gz`);
+      if (existsSync(dbPath) || existsSync(dbGzPath)) {
+        filePath = existsSync(dbGzPath) ? dbGzPath : dbPath;
+        isSqlite = true;
+      } else {
+        filePath = join(indexDir, `${id}.json.gz`);
+      }
     }
 
-    const filePath = join(indexDir, fileName);
+    if (isSqlite) {
+      // Ensure we have the .db.gz or .db file
+      const dbGzPath = filePath.endsWith(".db.gz") ? filePath : filePath + ".gz";
+      const dbPath = filePath.endsWith(".db.gz") ? filePath.slice(0, -".gz".length) : filePath;
+
+      if (!existsSync(dbPath) && !existsSync(dbGzPath)) {
+        console.warn(`[ontology-lookup] SQLite index not found, skipping: ${dbPath}`);
+        return;
+      }
+
+      try {
+        const index = await openSqliteIndex(existsSync(dbGzPath) ? dbGzPath : dbPath);
+        this.indexes.set(id, index);
+      } catch (err) {
+        console.warn(`[ontology-lookup] Failed to load SQLite index for ${id}: ${err}`);
+      }
+      return;
+    }
 
     if (!existsSync(filePath)) {
       console.warn(`[ontology-lookup] Index file not found, skipping: ${filePath}`);
@@ -78,7 +113,7 @@ export class OntologyRegistry {
       const indexFile = readIndexFile(filePath);
       this.indexes.set(id, new OntologyIndex(indexFile));
     } catch (err) {
-      console.warn(`[ontology-lookup] Failed to load index ${fileName}: ${err}`);
+      console.warn(`[ontology-lookup] Failed to load index for ${id}: ${err}`);
     }
   }
 
@@ -100,15 +135,13 @@ export class OntologyRegistry {
       this.manifest
     );
 
-    // Re-read the updated manifest from disk
     const manifestPath = join(this.options.indexDir, "manifest.json");
     if (existsSync(manifestPath)) {
       this.manifest = readManifestFile(manifestPath);
     }
 
-    // Reload each updated ontology
     for (const id of result.updated) {
-      this.loadOntology(id);
+      await this.loadOntology(id);
     }
 
     return result;
@@ -147,7 +180,7 @@ export class OntologyRegistry {
     for (const ontology of ontologies) {
       const index = this.indexes.get(ontology);
       if (!index) continue;
-      allResults.push(...searchIndex(index, query, limit));
+      allResults.push(...index.search(query, limit));
     }
 
     return allResults.sort((a, b) => b.score - a.score).slice(0, limit);
@@ -161,7 +194,7 @@ export class OntologyRegistry {
     for (const ontology of ontologies) {
       const index = this.indexes.get(ontology);
       if (!index) continue;
-      const result = resolveIndex(index, value);
+      const result = index.resolve(value);
       if (result) return result;
     }
     return null;
@@ -174,7 +207,7 @@ export class OntologyRegistry {
   isDescendantOf(termAccession: string, parentAccession: string, ontology: string): boolean {
     const index = this.indexes.get(ontology);
     if (!index) return false;
-    return isDescendantOf(index, termAccession, parentAccession);
+    return index.isDescendantOf(termAccession, parentAccession);
   }
 
   /**
@@ -184,7 +217,7 @@ export class OntologyRegistry {
   getDescendants(parentAccession: string, ontology: string): string[] {
     const index = this.indexes.get(ontology);
     if (!index) return [];
-    return getDescendants(index, parentAccession);
+    return index.getDescendants(parentAccession);
   }
 
   /**
@@ -194,6 +227,6 @@ export class OntologyRegistry {
   getDirectDescendants(parentAccession: string, ontology: string): string[] {
     const index = this.indexes.get(ontology);
     if (!index) return [];
-    return getDirectDescendants(index, parentAccession);
+    return index.getDirectDescendants(parentAccession);
   }
 }

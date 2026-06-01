@@ -96,16 +96,9 @@ ontologies:
     additional_prefixes: []
     source_url: http://purl.obolibrary.org/obo/ncbitaxon.obo
     format: obo
-    pruning:
-      enabled: true
-      strategy: ancestor_chain
-      # Produce both a full and a pruned variant.
-      # The pruned variant keeps only terms at genus level and above,
-      # plus any species explicitly listed in the species_allowlist file.
-      species_allowlist: ncbitaxon-species-allowlist.txt
     notes: >
-      Very large (~2.4M terms). Produces two variants: full and pruned.
-      The pruned variant is recommended for most use cases.
+      Very large (~2.4M terms). Stored as a SQLite database (.db.gz) for
+      on-demand lookup without loading all terms into memory.
 
   - id: hp
     full_name: Human Phenotype Ontology

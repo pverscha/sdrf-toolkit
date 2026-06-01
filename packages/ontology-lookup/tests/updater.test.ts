@@ -17,11 +17,20 @@ vi.mock("node:fs", async (importOriginal) => {
     ...real,
     mkdirSync: vi.fn(),
     writeFileSync: vi.fn(),
+    unlinkSync: vi.fn(),
+    existsSync: vi.fn().mockReturnValue(false),
+    createReadStream: vi.fn().mockReturnValue({ pipe: vi.fn() }),
+    createWriteStream: vi.fn().mockReturnValue({ on: vi.fn() }),
   };
 });
 
+// Mock stream pipeline so decompression in Updater is a no-op in tests
+vi.mock("node:stream/promises", () => ({
+  pipeline: vi.fn().mockResolvedValue(undefined),
+}));
+
 // Import mocked functions AFTER vi.mock hoisting resolves
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, unlinkSync, existsSync } from "node:fs";
 import { Updater } from "../src/updater.js";
 
 // ---------------------------------------------------------------------------
@@ -105,6 +114,8 @@ beforeEach(() => {
   updater = new Updater();
   vi.mocked(mkdirSync).mockReset();
   vi.mocked(writeFileSync).mockReset();
+  vi.mocked(unlinkSync).mockReset();
+  vi.mocked(existsSync).mockReset().mockReturnValue(false);
 });
 
 // Remove the global fetch stub after each test. This prevents a stub set up
@@ -390,66 +401,52 @@ describe("file download errors", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 6. Variants support
+// 6. SQLite index (.db.gz) support
 //
-// Large ontologies like NCBITaxon ship as two separate files: a "full" index
-// and a "pruned" index (model-organism subset). The manifest represents these
-// as a `variants` map rather than a single fileName/sha256 pair. Updater must
-// download and verify every variant independently so that users who only load
-// one variant still get a correct, verified file.
+// Large ontologies (NCBITaxon) ship as a single .db.gz SQLite database rather
+// than a gzip-compressed JSON file. After downloading and verifying the file,
+// Updater decompresses it to a .db file so the registry can open it directly.
 // ---------------------------------------------------------------------------
 
-describe("variants support", () => {
-  it("downloads all variant files for an ontology with variants", async () => {
-    // Both the full and the pruned variant must be fetched when any variant
-    // entry is present. Skipping a variant would leave a stale file on disk
-    // for users who load that specific variant.
-    const fullContent = Buffer.from("full-ncbitaxon-data");
-    const prunedContent = Buffer.from("pruned-ncbitaxon-data");
+describe("SQLite index (.db.gz) support", () => {
+  it("downloads a .db.gz file and marks ontology as updated", async () => {
+    const dbContent = Buffer.from("fake-sqlite-db-content");
     const remote = makeManifest({
       ncbitaxon: {
         sourceVersion: "2024-01-01",
         indexVersion: "1",
-        variants: {
-          full: { fileName: "ncbitaxon.json.gz", sha256: sha256(fullContent), compressedSize: fullContent.length, termCount: 1000 },
-          pruned: { fileName: "ncbitaxon-pruned.json.gz", sha256: sha256(prunedContent), compressedSize: prunedContent.length, termCount: 100 },
-        },
+        fileName: "ncbitaxon.db.gz",
+        sha256: sha256(dbContent),
+        compressedSize: dbContent.length,
+        termCount: 2700000,
       },
     });
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse(remote))
-      .mockResolvedValueOnce(binaryResponse(fullContent))
-      .mockResolvedValueOnce(binaryResponse(prunedContent));
+      .mockResolvedValueOnce(binaryResponse(dbContent));
     vi.stubGlobal("fetch", fetchMock);
     const result = await updater.checkAndUpdate(INDEX_DIR, UPDATE_SOURCE, null);
     expect(result.updated).toContain("ncbitaxon");
     const writeCalls = vi.mocked(writeFileSync).mock.calls.map(([p]) => p);
-    expect(writeCalls).toContain(`${INDEX_DIR}/ncbitaxon.json.gz`);
-    expect(writeCalls).toContain(`${INDEX_DIR}/ncbitaxon-pruned.json.gz`);
+    expect(writeCalls).toContain(`${INDEX_DIR}/ncbitaxon.db.gz`);
   });
 
-  it("throws SHA-256 mismatch for a bad variant checksum", async () => {
-    // Each variant is verified independently. Passing the first variant's
-    // checksum must not mask a bad checksum on the second variant. This test
-    // intentionally provides a correct digest for "full" and a wrong one for
-    // "pruned" to confirm that per-variant verification is not short-circuited.
-    const fullContent = Buffer.from("full-data");
-    const prunedContent = Buffer.from("pruned-data");
+  it("throws SHA-256 mismatch for a corrupted .db.gz download", async () => {
+    const dbContent = Buffer.from("sqlite-db-data");
     const wrongChecksum = "0000000000000000000000000000000000000000000000000000000000000000";
     const remote = makeManifest({
       ncbitaxon: {
         sourceVersion: "2024-01-01",
         indexVersion: "1",
-        variants: {
-          full: { fileName: "ncbitaxon.json.gz", sha256: sha256(fullContent), compressedSize: fullContent.length, termCount: 1000 },
-          pruned: { fileName: "ncbitaxon-pruned.json.gz", sha256: wrongChecksum, compressedSize: prunedContent.length, termCount: 100 },
-        },
+        fileName: "ncbitaxon.db.gz",
+        sha256: wrongChecksum,
+        compressedSize: dbContent.length,
+        termCount: 2700000,
       },
     });
     vi.stubGlobal("fetch", vi.fn()
       .mockResolvedValueOnce(jsonResponse(remote))
-      .mockResolvedValueOnce(binaryResponse(fullContent))
-      .mockResolvedValueOnce(binaryResponse(prunedContent)));
+      .mockResolvedValueOnce(binaryResponse(dbContent)));
     await expect(
       updater.checkAndUpdate(INDEX_DIR, UPDATE_SOURCE, null)
     ).rejects.toThrow("SHA-256 mismatch");

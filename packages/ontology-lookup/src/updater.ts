@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, unlinkSync, existsSync, createWriteStream, createReadStream } from "node:fs";
 import { join } from "node:path";
+import { createGunzip } from "node:zlib";
+import { pipeline } from "node:stream/promises";
 import type { Manifest } from "./types.js";
 
 export class Updater {
@@ -8,6 +10,9 @@ export class Updater {
    * Fetches the remote manifest, compares against the locally loaded manifest,
    * downloads changed index files, verifies SHA-256 checksums, and writes them
    * to disk. Returns which ontologies were updated vs. already current.
+   *
+   * For `.db.gz` files, also decompresses to `.db` after download so the
+   * registry can open the SQLite file directly without decompression on each use.
    */
   async checkAndUpdate(
     indexDir: string,
@@ -43,44 +48,50 @@ export class Updater {
         continue;
       }
 
-      // Collect all files to download for this ontology
-      const filesToDownload: Array<{ fileName: string; sha256: string }> = [];
-
-      if (remoteEntry.variants) {
-        for (const variant of Object.values(remoteEntry.variants)) {
-          filesToDownload.push({ fileName: variant.fileName, sha256: variant.sha256 });
-        }
-      } else if (remoteEntry.fileName && remoteEntry.sha256) {
-        filesToDownload.push({ fileName: remoteEntry.fileName, sha256: remoteEntry.sha256 });
+      if (!remoteEntry.fileName || !remoteEntry.sha256) {
+        continue;
       }
 
-      for (const { fileName, sha256 } of filesToDownload) {
-        const fileUrl = `${baseUrl}/${fileName}`;
-        const fileResponse = await fetch(fileUrl);
-        if (!fileResponse.ok) {
-          throw new Error(
-            `Failed to download ${fileUrl}: ${fileResponse.status} ${fileResponse.statusText}`
-          );
-        }
+      const { fileName, sha256 } = remoteEntry;
+      const fileUrl = `${baseUrl}/${fileName}`;
+      const fileResponse = await fetch(fileUrl);
+      if (!fileResponse.ok) {
+        throw new Error(
+          `Failed to download ${fileUrl}: ${fileResponse.status} ${fileResponse.statusText}`
+        );
+      }
 
-        const buffer = Buffer.from(await fileResponse.arrayBuffer());
+      const buffer = Buffer.from(await fileResponse.arrayBuffer());
 
-        const actualSha256 = createHash("sha256").update(buffer).digest("hex");
-        if (actualSha256 !== sha256) {
-          throw new Error(
-            `SHA-256 mismatch for ${fileName}: expected ${sha256}, got ${actualSha256}`
-          );
-        }
+      const actualSha256 = createHash("sha256").update(buffer).digest("hex");
+      if (actualSha256 !== sha256) {
+        throw new Error(
+          `SHA-256 mismatch for ${fileName}: expected ${sha256}, got ${actualSha256}`
+        );
+      }
 
-        writeFileSync(join(indexDir, fileName), buffer);
+      const localPath = join(indexDir, fileName);
+      writeFileSync(localPath, buffer);
+
+      // For SQLite indexes, decompress .db.gz → .db so the registry can open it directly
+      if (fileName.endsWith(".db.gz")) {
+        const dbPath = localPath.slice(0, -".gz".length);
+        if (existsSync(dbPath)) unlinkSync(dbPath);
+        await decompressFile(localPath, dbPath);
       }
 
       updated.push(id);
     }
 
-    // Persist the updated manifest locally
     writeFileSync(join(indexDir, "manifest.json"), JSON.stringify(remoteManifest, null, 2));
 
     return { updated, alreadyCurrent };
   }
+}
+
+async function decompressFile(src: string, dest: string): Promise<void> {
+  const readStream = createReadStream(src);
+  const gunzip = createGunzip();
+  const writeStream = createWriteStream(dest);
+  await pipeline(readStream, gunzip, writeStream);
 }

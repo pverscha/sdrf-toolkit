@@ -37,13 +37,6 @@ export interface OntologyIndexFile {
   terms: OntologyTermEntry[];
 }
 
-export interface VariantEntry {
-  fileName: string;
-  compressedSize: number;
-  sha256: string;
-  termCount: number;
-}
-
 export interface ManifestEntry {
   sourceVersion: string;
   indexVersion: string;
@@ -51,7 +44,6 @@ export interface ManifestEntry {
   compressedSize?: number;
   sha256?: string;
   termCount?: number;
-  variants?: Record<string, VariantEntry>;
 }
 
 export interface Manifest {
@@ -87,12 +79,6 @@ export interface OntologyRegistryOptions {
   /** GitHub repo for pre-built indexes (e.g., "owner/repo"). */
   updateSource?: string;
 
-  /** Which ontologies to load. If omitted, loads all *.json.gz in indexDir. */
+  /** Which ontologies to load. If omitted, loads all *.json.gz and *.db files in indexDir. */
   ontologies?: string[];
-
-  /** Per-ontology configuration overrides. */
-  ontologyOptions?: Record<string, {
-    /** Use pruned variant if available (for large ontologies like NCBITaxon). */
-    variant?: "full" | "pruned";
-  }>;
 }

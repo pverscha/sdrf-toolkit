@@ -32,12 +32,6 @@ export interface OntologyIndexFile {
   terms: OntologyTermEntry[];
 }
 
-export interface OntologyPruningConfig {
-  enabled: boolean;
-  strategy: string;
-  species_allowlist: string;
-}
-
 export interface OntologySourceConfig {
   id: string;
   full_name: string;
@@ -45,7 +39,6 @@ export interface OntologySourceConfig {
   additional_prefixes: string[];
   source_url: string;
   format: "obo" | "unimod_xml" | "owl";
-  pruning?: OntologyPruningConfig;
   notes?: string | null;
 }
 
@@ -71,7 +64,6 @@ export interface BuildResult {
   id: string;
   sourceVersion: string;
   changed: boolean;
-  variants?: Record<string, VariantResult>;
   fileName?: string;
   compressedSize?: number;
   sha256?: string;
@@ -86,7 +78,6 @@ export interface ManifestEntry {
   compressedSize?: number;
   sha256?: string;
   termCount?: number;
-  variants?: Record<string, VariantResult>;
 }
 
 export interface Manifest {

@@ -28,7 +28,6 @@ const indexVersion = values["index-version"] as string;
 
 // Resolve config files relative to this script's location (works for both tsx and compiled dist)
 const sourcesYaml = resolve(__dirname, "../ontology-sources.yaml");
-const allowlistPath = resolve(__dirname, "../ncbitaxon-species-allowlist.txt");
 
 log.info("=== Ontology Indexing Pipeline ===");
 log.info(`Output dir:    ${outputDir}`);
@@ -40,7 +39,7 @@ log.info("");
 
 (async () => {
   try {
-    await runPipeline(sourcesYaml, allowlistPath, {
+    await runPipeline(sourcesYaml, {
       outputDir,
       dataDir,
       ontologies: ontologiesFilter,

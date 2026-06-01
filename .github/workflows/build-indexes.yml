@@ -54,4 +54,4 @@ jobs:
           gh release create "$TAG" \
             --title "Ontology Indexes ${{ steps.build-date.outputs.value }}" \
             --notes "Pre-built ontology indexes — ${{ steps.build-date.outputs.value }}. See manifest.json for per-ontology versions." \
-            output/*.json.gz output/manifest.json output/checksums.sha256
+            output/*.json.gz output/*.db.gz output/manifest.json output/checksums.sha256

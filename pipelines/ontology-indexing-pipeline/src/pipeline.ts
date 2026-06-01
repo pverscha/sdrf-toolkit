@@ -15,8 +15,8 @@ import { fetchWithCache } from "./fetch.js";
 import { parseOboFile } from "./parsers/obo-parser.js";
 import { parseUnimodXml } from "./parsers/unimod-parser.js";
 import { parseOwlFile } from "./parsers/owl-parser.js";
-import { loadAllowlist, pruneNCBITaxon } from "./pruning.js";
 import { buildIndex } from "./index-builder.js";
+import { buildSqliteIndex } from "./index-builder-sqlite.js";
 import { buildManifest } from "./manifest-builder.js";
 
 const ACCESSION_RE = /^[A-Za-z][A-Za-z0-9_]*:[0-9A-Za-z_.-]+$/;
@@ -131,7 +131,6 @@ async function processOntology(
   dataDir: string,
   outputDir: string,
   indexVersion: string,
-  allowlistPath: string,
   force: boolean
 ): Promise<BuildResult> {
   const ext = config.format === "unimod_xml" ? "xml" : config.format === "owl" ? "owl" : "obo";
@@ -141,37 +140,30 @@ async function processOntology(
   const { changed } = await fetchWithCache(config.source_url, sourceFile, metaFile, force);
 
   if (!changed && !force) {
-    const expectedFiles =
-      config.id === "ncbitaxon" && config.pruning?.enabled
-        ? [
-            join(outputDir, `${config.id}.json.gz`),
-            join(outputDir, `${config.id}-pruned.json.gz`),
-          ]
-        : [join(outputDir, `${config.id}.json.gz`)];
+    const expectedFile =
+      config.id === "ncbitaxon"
+        ? join(outputDir, `${config.id}.db.gz`)
+        : join(outputDir, `${config.id}.json.gz`);
 
-    if (expectedFiles.every((f) => existsSync(f))) {
+    if (existsSync(expectedFile)) {
       log.info(`  Skipping (unchanged): ${config.id}`);
       return { id: config.id, sourceVersion: "cached", changed: false };
     }
 
-    log.info(`  Output file(s) missing, rebuilding: ${config.id}`);
-    // fall through to full parse → validate → buildIndex
+    log.info(`  Output file missing, rebuilding: ${config.id}`);
+    // fall through to full parse → validate → build
   }
 
   let terms: OntologyTermEntry[];
   let sourceVersion: string;
-  let rankMap: Map<string, string> | undefined;
 
   if (config.format === "obo") {
-    const isNCBITaxon = config.id === "ncbitaxon";
     const parsed = await parseOboFile(sourceFile, {
       defaultPrefix: config.default_prefix,
       additionalPrefixes: config.additional_prefixes,
-      collectRanks: isNCBITaxon,
     });
     terms = parsed.terms;
     sourceVersion = parsed.sourceVersion || new Date().toISOString().slice(0, 10);
-    rankMap = parsed.rankMap;
 
     const { discardedByPrefix } = parsed;
     if (discardedByPrefix.length > 0) {
@@ -228,43 +220,17 @@ async function processOntology(
     throw new Error(`Produced 0 valid terms after validation`);
   }
 
-  // NCBITaxon: produce full + pruned variants
-  if (config.id === "ncbitaxon" && config.pruning?.enabled) {
-    const allowlist = await loadAllowlist(allowlistPath);
-
-    const fullResult = await buildIndex(
-      config,
-      terms,
-      sourceVersion,
-      outputDir,
-      indexVersion,
-      "full"
-    );
-
-    const prunedTerms = pruneNCBITaxon(terms, rankMap!, allowlist);
-    log.info(`  Pruned to ${prunedTerms.length} terms`);
-
-    if (prunedTerms.length === 0) {
-      throw new Error(`Pruned NCBITaxon produced 0 terms — check the species allowlist`);
-    }
-
-    const prunedResult = await buildIndex(
-      config,
-      prunedTerms,
-      sourceVersion,
-      outputDir,
-      indexVersion,
-      "pruned"
-    );
-
+  // NCBITaxon: build a SQLite index for on-demand lookup without loading all terms into memory
+  if (config.id === "ncbitaxon") {
+    const result = await buildSqliteIndex(config, terms, sourceVersion, outputDir, indexVersion);
     return {
       id: config.id,
       sourceVersion,
       changed: true,
-      variants: {
-        full: fullResult,
-        pruned: prunedResult,
-      },
+      fileName: result.fileName,
+      compressedSize: result.compressedSize,
+      sha256: result.sha256,
+      termCount: result.termCount,
     };
   }
 
@@ -283,7 +249,6 @@ async function processOntology(
 
 export async function runPipeline(
   sourcesYamlPath: string,
-  allowlistPath: string,
   options: CliOptions
 ): Promise<void> {
   const { outputDir, dataDir, ontologies: filter, force, indexVersion } = options;
@@ -319,7 +284,6 @@ export async function runPipeline(
         dataDir,
         outputDir,
         indexVersion,
-        allowlistPath,
         force
       );
       results.push(result);
@@ -348,16 +312,14 @@ export async function runPipeline(
       return result;
     }
 
-    return existing.variants
-      ? { ...result, sourceVersion: existing.sourceVersion, variants: existing.variants }
-      : {
-          ...result,
-          sourceVersion: existing.sourceVersion,
-          fileName: existing.fileName,
-          compressedSize: existing.compressedSize,
-          sha256: existing.sha256,
-          termCount: existing.termCount,
-        };
+    return {
+      ...result,
+      sourceVersion: existing.sourceVersion,
+      fileName: existing.fileName,
+      compressedSize: existing.compressedSize,
+      sha256: existing.sha256,
+      termCount: existing.termCount,
+    };
   });
 
   await buildManifest(enrichedResults, outputDir, indexVersion);

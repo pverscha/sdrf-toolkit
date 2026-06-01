@@ -1,4 +1,7 @@
-import type { OntologyIndexFile, OntologyIndexMeta, OntologyTermEntry, SynonymEntry } from "./types.js";
+import type { OntologyIndexFile, OntologyIndexMeta, OntologyTermEntry, OntologySearchResult, OntologyTerm, SynonymEntry } from "./types.js";
+import type { IOntologyIndex } from "./ontology-index-interface.js";
+import { searchIndex, resolveIndex } from "./search.js";
+import { isDescendantOf, getDescendants, getDirectDescendants } from "./hierarchy.js";
 
 export interface PrefixEntry {
   text: string;
@@ -7,7 +10,7 @@ export interface PrefixEntry {
   isLabel: boolean;
 }
 
-export class OntologyIndex {
+export class OntologyIndex implements IOntologyIndex {
   readonly meta: OntologyIndexMeta;
   private readonly terms: OntologyTermEntry[];
 
@@ -102,5 +105,25 @@ export class OntologyIndex {
 
   getAllTerms(): OntologyTermEntry[] {
     return this.terms;
+  }
+
+  search(query: string, limit: number): OntologySearchResult[] {
+    return searchIndex(this, query, limit);
+  }
+
+  resolve(value: string): OntologyTerm | null {
+    return resolveIndex(this, value);
+  }
+
+  isDescendantOf(childAccession: string, ancestorAccession: string): boolean {
+    return isDescendantOf(this, childAccession, ancestorAccession);
+  }
+
+  getDescendants(parentAccession: string): string[] {
+    return getDescendants(this, parentAccession);
+  }
+
+  getDirectDescendants(parentAccession: string): string[] {
+    return getDirectDescendants(this, parentAccession);
   }
 }

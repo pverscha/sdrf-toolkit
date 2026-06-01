@@ -1,0 +1,25 @@
+{
+  "file": "valid/pxd015270.sdrf.tsv",
+  "templates": [
+    "human"
+  ],
+  "has_errors": true,
+  "has_warnings": false,
+  "error_count": 2,
+  "warning_count": 0,
+  "error_categories": [
+    "MISSING_REQUIRED_COLUMN"
+  ],
+  "warning_categories": [],
+  "errors": [
+    {
+      "message": "Required column 'technology type' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'characteristics[biological replicate]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    }
+  ],
+  "warnings": []
+}

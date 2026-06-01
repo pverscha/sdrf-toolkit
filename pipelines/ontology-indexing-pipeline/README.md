@@ -744,3 +744,105 @@ After a successful pipeline run, the `output/` directory contains:
 | ... | (one per ontology) | varies |
 
 Total release size: approximately **110–120 MB** (dominated by NCBITaxon full).
+
+---
+
+## Testing
+
+Run the test suite from the pipeline root:
+
+```bash
+npm test
+```
+
+The suite uses [Vitest](https://vitest.dev/). All tests run offline — no network calls, no ontology downloads required.
+
+### Test files
+
+```
+tests/
+├── fixtures/
+│   ├── mini-mondo.obo          Mini OBO file with ~10 terms covering a disease hierarchy
+│   ├── mini-ncbitaxon.obo      Mini OBO file with taxonomy rank annotations (for NCBITaxon pruning)
+│   ├── mini-unimod.xml         Mini Unimod XML file with approved and unapproved modifications
+│   └── mini-hancestro.owl      Mini OWL file with ancestry ontology terms (for OWL parser)
+├── obo-parser.test.ts          Parser correctness for OBO format
+├── unimod-parser.test.ts       Parser correctness for Unimod XML format
+└── owl-parser.test.ts          Parser correctness for OWL/RDF format
+```
+
+### `obo-parser.test.ts`
+
+**Purpose:** Verify that `parseOboFile()` correctly extracts all required fields from OBO-format ontology files. This is the most critical parser because the majority of ontologies (MONDO, EFO, UBERON, CL, MS, etc.) use the OBO format.
+
+**Fixtures used:** `mini-mondo.obo`, `mini-ncbitaxon.obo`
+
+**What is tested:**
+
+| Test | What it verifies |
+|---|---|
+| Extracts `sourceVersion` from `data-version` header | The `meta.sourceVersion` field is read correctly from the OBO file header |
+| Parses basic term fields | `accession`, `label`, `parentIds`, `xrefs`, and `obsolete` are extracted correctly |
+| Parses synonyms with correct type | EXACT, RELATED, BROAD, NARROW synonym types are preserved |
+| Handles escaped quotes in synonym text | `synonym: "5\"10\""` is parsed without crashing |
+| Filters imported terms with wrong prefix | Terms whose `id:` prefix doesn't match `defaultPrefix` are discarded |
+| Tracks discarded accessions | The `discardedByPrefix` count reflects filtered terms |
+| Marks obsolete terms and collects `replacedBy` | `is_obsolete: true` and `replaced_by:` fields are handled |
+| Handles multiple `is_a` parents | A term with two `is_a:` lines produces two entries in `parentIds` |
+| Flushes final term at EOF | The last term in a file is included even without a trailing blank line |
+| Matches prefixes case-insensitively | `NCBITaxon` matches `ncbitaxon` in the configuration |
+| Skips `[Typedef]` stanzas | Relationship-type definitions are not returned as terms |
+| Collects rank annotations when `collectRanks=true` | NCBITaxon-specific `has_rank` property values are extracted for pruning |
+
+### `unimod-parser.test.ts`
+
+**Purpose:** Verify that `parseUnimodXml()` correctly extracts modification records from Unimod's custom XML format.
+
+**Fixtures used:** `mini-unimod.xml`
+
+**What is tested:**
+
+| Test | What it verifies |
+|---|---|
+| Extracts `sourceVersion` from XML attributes | `majorVersion`/`minorVersion` from the root element form the version string |
+| Formats accession as `UNIMOD:<record_id>` | The numeric `record_id` attribute is prefixed correctly |
+| Parses basic modification fields | `label`, `accession`, `obsolete: false`, empty `parentIds` |
+| Filters unapproved modifications | `approved="0"` entries are excluded from the output |
+| Adds `full_name` as EXACT synonym when different from `title` | E.g., `title="Acetyl"` and `full_name="Acetylation"` → one synonym |
+| Does not add `full_name` as synonym when identical to `title` | Avoids duplicate labels in the synonym list |
+| Adds `<alt_name>` child elements as synonyms | Each `<alt_name>` becomes an EXACT synonym |
+| Deduplicates synonyms | When `full_name` and an `<alt_name>` are the same string, only one is stored |
+| Parses all approved modifications and skips unapproved | End-to-end count check across all entries in the fixture |
+
+### `owl-parser.test.ts`
+
+**Purpose:** Verify that `parseOwlFile()` correctly extracts terms from OWL/RDF-format ontology files. This parser handles ontologies that are not available in OBO format (e.g., HANCESTRO).
+
+**Fixtures used:** `mini-hancestro.owl`
+
+**What is tested:**
+
+| Test | What it verifies |
+|---|---|
+| Extracts version from `owl:versionInfo` | The `meta.sourceVersion` field is populated from the OWL file |
+| Correctly converts IRI to accession | A full URI like `http://purl.obolibrary.org/obo/HANCESTRO_0004` becomes `HANCESTRO:0004` |
+| Extracts label | `rdfs:label` value is read as the primary term label |
+| Extracts `rdfs:subClassOf` with `rdf:resource` as parent | Direct class hierarchy is captured in `parentIds` |
+| Ignores complex `subClassOf` (owl:Restriction) as parent | Restriction expressions are not treated as parent terms |
+| Extracts exact synonyms | `oboInOwl:hasExactSynonym` values become EXACT synonyms |
+| Extracts related synonyms | `oboInOwl:hasRelatedSynonym` values become RELATED synonyms |
+| Extracts broad and narrow synonyms | `oboInOwl:hasBroadSynonym` and `oboInOwl:hasNarrowSynonym` are handled |
+| Marks term as obsolete from `owl:deprecated` | `owl:deprecated true` sets `obsolete: true` |
+| Extracts `replacedBy` from `obo:IAO_0100001` | The standard OBO-in-OWL replacement annotation is parsed |
+| Extracts xrefs from `oboInOwl:hasDbXref` | Cross-references to other ontologies are collected |
+| Discards foreign-prefix terms | Terms whose IRI prefix does not match the configured prefix are excluded |
+| Skips anonymous classes | Classes without an `rdf:about` attribute are ignored |
+
+### Fixture files
+
+The test fixtures are minimal synthetic files designed to exercise specific parser behaviors without requiring large downloads.
+
+- **`mini-mondo.obo`** — ~10 terms covering a simple disease hierarchy (includes obsolete terms, synonyms, xrefs, and multi-parent terms).
+- **`mini-ncbitaxon.obo`** — A small taxonomy excerpt with `has_rank` annotations needed to test the NCBITaxon pruning logic.
+- **`mini-unimod.xml`** — ~5 modifications including both approved and unapproved entries, and entries where `full_name` differs from `title`.
+- **`mini-hancestro.owl`** — ~5 ancestry terms in OWL/RDF format covering the range of synonym types and parent relationship styles.

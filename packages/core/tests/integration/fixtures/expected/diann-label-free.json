@@ -1,0 +1,46 @@
+{
+  "file": "valid/diann-label-free.sdrf.tsv",
+  "templates": [
+    "ms-proteomics"
+  ],
+  "has_errors": true,
+  "has_warnings": false,
+  "error_count": 7,
+  "warning_count": 0,
+  "error_categories": [
+    "INSUFFICIENT_COLUMNS",
+    "MISSING_REQUIRED_COLUMN"
+  ],
+  "warning_categories": [],
+  "errors": [
+    {
+      "message": "SDRF has 11 columns but requires at least 12",
+      "category": "INSUFFICIENT_COLUMNS"
+    },
+    {
+      "message": "Required column 'technology type' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'comment[technical replicate]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'characteristics[organism part]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'characteristics[biological replicate]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'comment[proteomics data acquisition method]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    },
+    {
+      "message": "Required column 'comment[fraction identifier]' is missing from the SDRF file",
+      "category": "MISSING_REQUIRED_COLUMN"
+    }
+  ],
+  "warnings": []
+}

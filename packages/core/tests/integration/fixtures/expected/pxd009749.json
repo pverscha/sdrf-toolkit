@@ -1,0 +1,25 @@
+{
+  "file": "valid/pxd009749.sdrf.tsv",
+  "templates": [
+    "immunopeptidomics"
+  ],
+  "has_errors": true,
+  "has_warnings": false,
+  "error_count": 2,
+  "warning_count": 0,
+  "error_categories": [
+    "PATTERN_MISMATCH"
+  ],
+  "warning_categories": [],
+  "errors": [
+    {
+      "message": "Value '1.1.0' does not match required pattern",
+      "category": "PATTERN_MISMATCH"
+    },
+    {
+      "message": "Value 'human v1.1.0, ms-proteomics v1.1.0, immunopeptidomics v1.0.0' does not match required pattern",
+      "category": "PATTERN_MISMATCH"
+    }
+  ],
+  "warnings": []
+}

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ValidationEngine } from "../src/validation/engine.js";
+import { CellValidatorType, GlobalValidatorType } from "../src/types/template.js";
 import type { ColumnDefinition, SdrfTemplate } from "../src/types/template.js";
 import type { SdrfFile } from "../src/types/sdrf.js";
 
@@ -68,7 +69,7 @@ describe("ValidationEngine — validateCell", () => {
     const col = makeColDef({
       validators: [
         {
-          validatorName: "values",
+          validatorName: CellValidatorType.Values,
           params: { values: ["male", "female"], error_level: "error" },
         },
       ],
@@ -82,7 +83,7 @@ describe("ValidationEngine — validateCell", () => {
     const col = makeColDef({
       validators: [
         {
-          validatorName: "pattern",
+          validatorName: CellValidatorType.Pattern,
           params: { pattern: "^\\d+$" },
         },
       ],
@@ -97,7 +98,7 @@ describe("ValidationEngine — validateCell", () => {
       cardinality: "multiple",
       validators: [
         {
-          validatorName: "values",
+          validatorName: CellValidatorType.Values,
           params: { values: ["HCD", "CID", "ETD"], error_level: "error" },
         },
       ],
@@ -166,7 +167,7 @@ describe("ValidationEngine — validateFile", () => {
     };
     const template = makeTemplate({
       columns: [makeColDef({ name: "source name" })],
-      globalValidators: [{ validatorName: "trailing_whitespace_validator", params: {} }],
+      globalValidators: [{ validatorName: GlobalValidatorType.TrailingWhitespace, params: {} }],
     });
     const result = await engine.validateFile(file, template);
     const wsError = result.errors.find(e => e.validatorName === "trailing_whitespace_validator");
@@ -180,7 +181,7 @@ describe("ValidationEngine — validateFile", () => {
     };
     const template = makeTemplate({
       columns: [makeColDef({ name: "source name", requirement: "required" })],
-      globalValidators: [{ validatorName: "empty_cells", params: {} }],
+      globalValidators: [{ validatorName: GlobalValidatorType.EmptyCells, params: {} }],
     });
     const result = await engine.validateFile(file, template);
     expect(result.valid).toBe(false);
@@ -206,7 +207,7 @@ describe("ValidationEngine — validateFile", () => {
           cardinality: "multiple",
           validators: [
             {
-              validatorName: "values",
+              validatorName: CellValidatorType.Values,
               params: { values: ["HCD", "CID", "ETD"], error_level: "error" },
             },
           ],

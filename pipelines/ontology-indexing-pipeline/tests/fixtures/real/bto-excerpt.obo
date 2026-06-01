@@ -1,0 +1,28 @@
+format-version: 1.2
+data-version: releases/2021-10-26
+date: 23:10:2021 16:56
+ontology: bto
+
+[Term]
+id: BTO:0000216
+name: culture condition
+
+[Term]
+id: BTO:0001479
+name: culture condition:-grown cell
+is_a: BTO:0000216 ! culture condition
+
+[Term]
+id: BTO:0000000
+name: tissues, cell types and enzyme sources
+def: "A structured controlled vocabulary for the source of an enzyme. It comprises terms of tissues, cell lines, cell types and cell cultures from uni- and multicellular organisms." [curators:mgr]
+
+[Term]
+id: BTO:0000001
+name: culture condition:-induced cell
+is_a: BTO:0000216 ! culture condition
+
+[Term]
+id: BTO:0000002
+name: culture condition:1,4-dichlorobenzene-grown cell
+is_a: BTO:0001479 ! culture condition:-grown cell

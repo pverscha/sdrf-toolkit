@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<umod:unimod xmlns:umod="http://www.unimod.org/xmlns/schema/unimod_2"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.unimod.org/xmlns/schema/unimod_2 http://www.unimod.org/xmlns/schema/unimod_2/unimod_2.xsd"
+             majorVersion="2"
+             minorVersion="0">
+   <umod:modifications>
+      <umod:mod title="Acetyl" full_name="Acetylation" username_of_poster="unimod"
+                group_of_poster="admin"
+                date_time_posted="2002-08-19 19:17:11"
+                date_time_modified="2017-11-08 16:08:56"
+                approved="1"
+                record_id="1">
+         <umod:specificity hidden="0" site="K" position="Anywhere" classification="Multiple"
+                           spec_group="1"/>
+         <umod:specificity hidden="0" site="N-term" position="Protein N-term"
+                           classification="Post-translational"
+                           spec_group="5"/>
+      </umod:mod>
+      <umod:mod title="Phospho" full_name="Phosphorylation" username_of_poster="unimod"
+                group_of_poster="admin"
+                date_time_posted="2002-08-19 19:17:11"
+                date_time_modified="2018-08-13 13:42:59"
+                approved="1"
+                record_id="21">
+         <umod:specificity hidden="0" site="S" position="Anywhere" classification="Post-translational"
+                           spec_group="1"/>
+         <umod:specificity hidden="0" site="T" position="Anywhere" classification="Post-translational"
+                           spec_group="2"/>
+         <umod:specificity hidden="0" site="Y" position="Anywhere" classification="Post-translational"
+                           spec_group="3"/>
+      </umod:mod>
+      <umod:mod title="Carbamyl" full_name="Carbamylation" username_of_poster="unimod"
+                group_of_poster="admin"
+                date_time_posted="2002-08-19 19:17:11"
+                date_time_modified="2011-11-21 13:06:47"
+                approved="0"
+                record_id="5">
+         <umod:specificity hidden="1" site="K" position="Anywhere" classification="Chemical derivative"
+                           spec_group="1"/>
+      </umod:mod>
+   </umod:modifications>
+</umod:unimod>

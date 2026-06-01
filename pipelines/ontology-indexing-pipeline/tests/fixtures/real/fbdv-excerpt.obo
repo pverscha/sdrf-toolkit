@@ -1,0 +1,22 @@
+format-version: 1.2
+data-version: fbdv/releases/2026-01-13
+date: 13:01:2026 09:40
+ontology: fbdv.obo
+
+[Term]
+id: FBdv:00005259
+name: developmental stage
+
+[Term]
+id: FBdv:00000000
+name: Drosophila life
+alt_id: FBdv_root:00000000
+def: "The life of an individual of the species Drosophila melanogaster, from fertilization to death." [FBC:DOS]
+synonym: "Drosophila life cycle" EXACT []
+
+[Term]
+id: FBdv:00000054
+name: cleavage stage
+def: "Stage during which the nucleus of the fertilized egg performs 13 rapid divisions, prior to cellularization." [FlyBase:FBrf0064803]
+comment: Temporal ordering number - 25.
+is_a: FBdv:00005259 ! developmental stage

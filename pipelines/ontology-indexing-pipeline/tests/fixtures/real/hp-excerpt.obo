@@ -1,0 +1,36 @@
+format-version: 1.2
+data-version: hp/releases/2026-02-16
+ontology: hp.obo
+
+[Term]
+id: HP:0001507
+name: Growth abnormality
+
+[Term]
+id: HP:0000107
+name: Renal cyst
+
+[Term]
+id: HP:0000001
+name: All
+comment: Root of all terms in the Human Phenotype Ontology.
+xref: UMLS:C0444868
+
+[Term]
+id: HP:0000002
+name: Abnormality of body height
+def: "Deviation from the norm of height with respect to that which is expected according to age and gender norms." [https://orcid.org/0000-0002-0736-9199]
+synonym: "Abnormality of body height" EXACT layperson []
+xref: UMLS:C4025901
+is_a: HP:0001507 ! Growth abnormality
+
+[Term]
+id: HP:0000003
+name: Multicystic kidney dysplasia
+def: "Multicystic dysplasia of the kidney is characterized by multiple cysts of varying size in the kidney and the absence of a normal pelvicaliceal system." [https://orcid.org/0000-0002-0736-9199]
+synonym: "Multicystic dysplastic kidney" EXACT []
+synonym: "Multicystic kidneys" EXACT []
+synonym: "Multicystic renal dysplasia" EXACT []
+xref: SNOMEDCT_US:82525005
+xref: UMLS:C3714581
+is_a: HP:0000107 ! Renal cyst

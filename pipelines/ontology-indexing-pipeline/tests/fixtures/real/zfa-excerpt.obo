@@ -1,0 +1,31 @@
+format-version: 1.2
+data-version: zfa/releases/2025-09-05/zfa-full.owl
+date: 15:05:2025 11:23
+ontology: zfa/zfa-full
+
+[Term]
+id: ZFA:0001105
+name: embryonic structure
+
+[Term]
+id: ZFA:0009000
+name: cell
+
+[Term]
+id: ZFA:0000001
+name: Kupffer's vesicle
+namespace: zebrafish_anatomy
+def: "Small but distinctive epithelial sac containing fluid, located midventrally posterior to the yolk cell." [ZFIN:ZDB-PUB-961014-576]
+synonym: "ciliated organ of asymmetry" EXACT [ZFIN:ZDB-PUB-050221-4]
+xref: TAO:0000001
+is_a: ZFA:0001105 ! embryonic structure
+
+[Term]
+id: ZFA:0000003
+name: adaxial cell
+namespace: zebrafish_anatomy
+def: "Muscle precursor cell that is adjacent to the notochord and part of the presomitic mesoderm." [PMID:8951054]
+synonym: "adaxial cells" EXACT OMO:0003004 []
+xref: CL:0007016
+xref: TAO:0000003
+is_a: ZFA:0009000 ! cell

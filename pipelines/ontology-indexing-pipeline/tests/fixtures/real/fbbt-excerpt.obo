@@ -1,0 +1,26 @@
+format-version: 1.2
+data-version: fbbt/releases/2026-01-13
+date: 13:01:2026 11:50
+ontology: fbbt.obo
+
+[Term]
+id: FBbt:00057001
+name: anterior-posterior subdivision of organism
+
+[Term]
+id: FBbt:00000001
+name: organism
+def: "An individual member of the species Drosophila melanogaster." [https://orcid.org/0000-0002-7073-9172]
+synonym: "Drosophila" RELATED []
+synonym: "whole organism" RELATED []
+xref: CARO:0000012
+xref: NCBITaxon:7227
+xref: UBERON:0000468
+is_a: FBbt:00100313 ! multicellular structure
+
+[Term]
+id: FBbt:00000002
+name: tagma
+def: "One of the three main divisions of the whole organism formed from groups of segments." [FBC:GG]
+xref: UBERON:6000002
+is_a: FBbt:00057001 ! anterior-posterior subdivision of organism

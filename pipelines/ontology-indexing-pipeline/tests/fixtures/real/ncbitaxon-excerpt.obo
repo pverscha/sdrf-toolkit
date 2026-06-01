@@ -1,0 +1,49 @@
+format-version: 1.2
+data-version: 2025-12-03
+synonymtypedef: genbank_common_name "genbank common name"
+synonymtypedef: scientific_name "scientific name"
+synonymtypedef: OMO:0003003 "layperson synonym"
+ontology: ncbitaxon
+
+[Term]
+id: NCBITaxon:207598
+name: Homininae
+namespace: ncbi_taxonomy
+is_a: NCBITaxon:9604 ! Hominidae
+property_value: has_rank NCBITaxon:subfamily
+
+[Term]
+id: NCBITaxon:9605
+name: Homo
+namespace: ncbi_taxonomy
+synonym: "humans" EXACT OMO:0003003 []
+xref: GC_ID:1
+is_a: NCBITaxon:207598 ! Homininae
+property_value: has_rank NCBITaxon:genus
+
+[Term]
+id: NCBITaxon:9606
+name: Homo sapiens
+namespace: ncbi_taxonomy
+synonym: "human" EXACT genbank_common_name []
+xref: GC_ID:1
+is_a: NCBITaxon:9605 ! Homo
+property_value: has_rank NCBITaxon:species
+
+[Term]
+id: NCBITaxon:862507
+name: Mus <subgenus>
+namespace: ncbi_taxonomy
+is_a: NCBITaxon:10088 ! Mus
+property_value: has_rank NCBITaxon:subgenus
+
+[Term]
+id: NCBITaxon:10090
+name: Mus musculus
+namespace: ncbi_taxonomy
+alt_id: NCBITaxon:85055
+synonym: "house mouse" EXACT genbank_common_name []
+synonym: "mouse" EXACT OMO:0003003 []
+xref: GC_ID:1
+is_a: NCBITaxon:862507 ! Mus <subgenus>
+property_value: has_rank NCBITaxon:species

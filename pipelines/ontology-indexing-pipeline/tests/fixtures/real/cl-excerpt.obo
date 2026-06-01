@@ -1,0 +1,36 @@
+format-version: 1.2
+data-version: releases/2026-03-17
+ontology: cl
+
+[Term]
+id: CL:0000010
+name: cultured cell
+def: "A cell that is grown or maintained in vitro for use in scientific study." [ReO:mhb]
+
+[Term]
+id: CL:0000000
+name: cell
+def: "A material entity of anatomical origin (part of or deriving from an organism) that has as its parts a maximally connected cell compartment surrounded by a plasma membrane." [CARO:mah]
+xref: FMA:68646
+xref: GO:0005623
+xref: MESH:D002477
+is_a: UBERON:0000061 ! anatomical structure
+
+[Term]
+id: CL:0000001
+name: primary cultured cell
+def: "A cultured cell that is freshly isolated from a organismal source, or derives in culture from such a cell prior to the culture being passaged." [ReO:mhb]
+synonym: "primary cell culture cell" EXACT []
+synonym: "primary cell line cell" RELATED []
+synonym: "unpassaged cultured cell" EXACT []
+xref: BTO:0002290
+is_a: CL:0000010 ! cultured cell
+
+[Term]
+id: CL:0000002
+name: obsolete immortal cell line cell
+def: "OBSOLETE: A cell line cell that is expected to be capable of an unlimited number of divisions." [ReO:mhb]
+synonym: "continuous cell line cell" EXACT []
+synonym: "permanent cell line cell" EXACT []
+is_obsolete: true
+replaced_by: CLO:0000019

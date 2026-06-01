@@ -1,0 +1,34 @@
+format-version: 1.2
+data-version: 250
+date: 11:03:2026 06:00
+saved-by: chebi
+ontology: chebi
+
+[Term]
+id: CHEBI:133004
+name: bisbenzylisoquinoline alkaloid
+
+[Term]
+id: CHEBI:16114
+name: medicarpin
+
+[Term]
+id: CHEBI:10
+name: (+)-Atherospermoline
+subset: 2:STAR
+synonym: "(+)-Atherospermoline" RELATED [kegg.compound]
+xref: cas:21008-67-3 {source="cas"}
+xref: kegg.compound:C11141 {source="kegg.compound"}
+is_a: CHEBI:133004 ! bisbenzylisoquinoline alkaloid
+
+[Term]
+id: CHEBI:100
+name: (-)-medicarpin
+def: "The (−)-enantiomer of medicarpin." []
+subset: 3:STAR
+synonym: "(-)-Medicarpin" RELATED [kegg.compound]
+synonym: "(6aR,11aR)-9-methoxy-6a,11a-dihydro-6H-[1]benzofuro[3,2-c]chromen-3-ol" EXACT IUPAC:NAME [IUPAC]
+synonym: "medicarpin" RELATED [chemidplus]
+xref: cas:32383-76-9 {source="cas"}
+xref: kegg.compound:C10503 {source="kegg.compound"}
+is_a: CHEBI:16114 ! medicarpin

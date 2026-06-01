@@ -1,0 +1,27 @@
+format-version: 1.2
+data-version: 4.1.244
+date: 13:03:2026 12:00
+saved-by: Jonathan Hunter
+default-namespace: MS
+remark: URL: http://purl.obolibrary.org/obo/ms/psi-ms.obo
+ontology: ms
+
+[Term]
+id: MS:1000008
+name: ionization type
+def: "The method by which gas phase ions are generated from the sample." [PSI:MS]
+relationship: part_of MS:1000458 ! source
+
+[Term]
+id: MS:1000009
+name: ionization mode
+def: "OBSOLETE Whether positive or negative ions are selected for analysis by the spectrometer." [PSI:MS]
+comment: This term was made obsolete because it was replaced by scan polarity (MS:1000465).
+is_obsolete: true
+
+[Term]
+id: MS:1000073
+name: electrospray ionization
+def: "A process in which ionized species in the gas phase are produced from an analyte-containing solution via highly charged fine droplets, by means of spraying the solution from a narrow-bore needle tip at atmospheric pressure in the presence of a high electric field. When a pressurized gas is used to aid in the formation of a stable spray, the term pneumatically assisted electrospray ionization is used. The term ion spray is not recommended." [PSI:MS]
+synonym: "ESI" EXACT []
+is_a: MS:1000008 ! ionization type

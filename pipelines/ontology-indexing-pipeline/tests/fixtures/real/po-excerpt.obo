@@ -1,0 +1,33 @@
+format-version: 1.2
+data-version: releases/2026-01-09
+ontology: po
+
+[Term]
+id: PO:0025099
+name: embryo plant structure
+
+[Term]
+id: PO:0009011
+name: plant structure
+
+[Term]
+id: PO:0000001
+name: plant embryo proper
+namespace: plant_anatomy
+def: "An embryonic plant structure (PO:0025099) that is the body of a developing plant embryo." [POC:Laurel_Cooper, POC:Ramona_Walls]
+synonym: "胚本体 (Japanese, exact)" EXACT Japanese [NIG:Yukiko_Yamazaki]
+xref: PO_GIT:246
+is_a: PO:0025099 ! embryo plant structure
+
+[Term]
+id: PO:0000003
+name: whole plant
+namespace: plant_anatomy
+def: "A plant structure (PO:0005679) which is a whole organism." [POC:curators]
+synonym: "bush (narrow)" NARROW []
+synonym: "gametophyte (narrow)" NARROW []
+synonym: "herb (narrow)" NARROW []
+synonym: "planta entera (Spanish, exact)" EXACT Spanish [POC:Maria_Alejandra_Gandolfo]
+synonym: "tree (narrow)" NARROW []
+xref: PO_GIT:538
+is_a: PO:0009011 ! plant structure

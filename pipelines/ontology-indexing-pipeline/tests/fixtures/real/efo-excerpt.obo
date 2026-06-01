@@ -1,0 +1,21 @@
+format-version: 1.2
+data-version: http://www.ebi.ac.uk/efo/releases/v3.88.0/efo.owl
+ontology: http://www.ebi.ac.uk/efo/efo.owl
+
+[Term]
+id: efo:EFO_0000001
+name: experimental factor
+def: "An experimental factor in Array Express which are essentially the variable aspects of an experiment design which can be used to describe an experiment, or set of experiments, in an increasingly detailed manner. This upper level class is really used to give a root class from which applications can rely on and not be tied to upper ontology classses which do change." []
+synonym: "ExperimentalFactor" EXACT []
+xref: MO:10
+
+[Term]
+id: efo:EFO_0000400
+name: obsolete_diabetes mellitus
+synonym: "Diabetes" EXACT []
+synonym: "Diabetes mellitus (disorder)" EXACT []
+synonym: "DM - Diabetes mellitus" EXACT []
+xref: DOID:9351
+xref: MESH:D003920
+is_obsolete: true
+replaced_by: http://purl.obolibrary.org/obo/MONDO_0005015

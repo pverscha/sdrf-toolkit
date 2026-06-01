@@ -1,0 +1,39 @@
+<rdf:RDF xmlns="http://purl.obolibrary.org/obo/clo/clo_merged.owl#"
+     xml:base="http://purl.obolibrary.org/obo/clo/clo_merged.owl"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:obo="http://purl.obolibrary.org/obo/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:oboInOwl="http://www.geneontology.org/formats/oboInOwl#">
+    <owl:Ontology rdf:about="http://purl.obolibrary.org/obo/clo/clo_merged.owl">
+        <dc:date xml:lang="en">2023-03-28</dc:date>
+        <dc:title xml:lang="en">Cell Line Ontology</dc:title>
+        <owl:versionInfo xml:lang="en">2.1.188</owl:versionInfo>
+    </owl:Ontology>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/OBI_0600024">
+        <rdfs:label>maintaining cell line</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/CLO_0000000">
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/OBI_0600024"/>
+        <obo:IAO_0000115>a maintaining cell culture process that keeps cell line cell alive and actively cultured.</obo:IAO_0000115>
+        <rdfs:label>cell line cell culturing</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/CLO_0000002">
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/CLO_0000000"/>
+        <obo:IAO_0000115>suspension cell line culturing is a cell line culturing method where cells do not require a surface for growth and differentiation.</obo:IAO_0000115>
+        <rdfs:label>suspension cell line culturing</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/CLO_0000003">
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/CLO_0000000"/>
+        <obo:IAO_0000115>adherent cell line culturing is a cell line culturing method where cells require a surface for growth and differentiation.</obo:IAO_0000115>
+        <rdfs:label>adherent cell line culturing</rdfs:label>
+    </owl:Class>
+
+</rdf:RDF>

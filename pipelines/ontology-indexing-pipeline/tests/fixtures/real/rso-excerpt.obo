@@ -1,0 +1,24 @@
+format-version: 1.2
+data-version: 6.271
+date: 07:03:2026 20:13
+ontology: rs
+
+[Term]
+id: RS:0000270
+name: A2
+
+[Term]
+id: RS:0000765
+name: inbred strain
+
+[Term]
+id: RS:0000001
+name: A2/Colle
+synonym: "RGD ID: 737949" RELATED []
+is_a: RS:0000270 ! A2
+
+[Term]
+id: RS:0000002
+name: AI
+synonym: "amelogenesis imperfecta rat" RELATED []
+is_a: RS:0000765 ! inbred strain

@@ -1,0 +1,48 @@
+<rdf:RDF xmlns="http://purl.obolibrary.org/obo/hancestro.owl#"
+     xml:base="http://purl.obolibrary.org/obo/hancestro.owl"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:obo="http://purl.obolibrary.org/obo/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:terms="http://purl.org/dc/terms/"
+     xmlns:oboInOwl="http://www.geneontology.org/formats/oboInOwl#">
+    <owl:Ontology rdf:about="http://purl.obolibrary.org/obo/hancestro.owl">
+        <owl:versionIRI rdf:resource="http://purl.obolibrary.org/obo/hancestro/releases/2025-10-14/hancestro.owl"/>
+        <dc:description>Human ancestry ontology for the NHGRI GWAS Catalog</dc:description>
+        <dc:title>Human Ancestry Ontology</dc:title>
+        <terms:license rdf:resource="http://creativecommons.org/licenses/by/4.0/"/>
+        <owl:versionInfo>2025-10-14</owl:versionInfo>
+    </owl:Ontology>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0004">
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/OBI_0000181"/>
+        <obo:IAO_0000115>Population category defined using ancestry informative markers (AIMs) based on genetic/genomic data</obo:IAO_0000115>
+        <oboInOwl:hasExactSynonym>ancestral group</oboInOwl:hasExactSynonym>
+        <rdfs:label>ancestry category</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0005">
+        <rdfs:subClassOf rdf:resource="http://purl.obolibrary.org/obo/HANCESTRO_0004"/>
+        <obo:IAO_0000115 xml:lang="en">Includes individuals who either self-report or have been described by authors as European, Caucasian, White or one of the sub-populations from this region.</obo:IAO_0000115>
+        <oboInOwl:hasExactSynonym>Caucasian</oboInOwl:hasExactSynonym>
+        <oboInOwl:hasExactSynonym>European</oboInOwl:hasExactSynonym>
+        <oboInOwl:hasExactSynonym>white</oboInOwl:hasExactSynonym>
+        <rdfs:label>European ancestry</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/HANCESTRO_0003">
+        <obo:IAO_0000115>A collective generic term that refers here to a wide variety of dependencies, areas of special sovereignty, uninhabited islands, and other entities in addition to the traditional countries or independent states.</obo:IAO_0000115>
+        <obo:IAO_0100001 rdf:resource="http://purl.obolibrary.org/obo/NCIT_C25464"/>
+        <rdfs:label>obsolete country</rdfs:label>
+        <owl:deprecated rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</owl:deprecated>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://purl.obolibrary.org/obo/OBI_0000181">
+        <obo:IAO_0000115 xml:lang="en">a population is a collection of individuals from the same taxonomic class living, counted or sampled at a particular site or in a particular area</obo:IAO_0000115>
+        <rdfs:label>population</rdfs:label>
+    </owl:Class>
+
+</rdf:RDF>

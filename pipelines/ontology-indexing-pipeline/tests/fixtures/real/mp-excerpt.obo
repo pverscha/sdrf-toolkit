@@ -1,0 +1,28 @@
+format-version: 1.2
+data-version: releases/2026-02-17/mp.obo
+ontology: mp
+
+[Term]
+id: MP:0005375
+name: adipose tissue phenotype
+
+[Term]
+id: MP:0000001
+name: mammalian phenotype
+def: "the observable morphological, physiological, behavioral and other characteristics of mammalian organisms that are manifested through development and lifespan" [https://orcid.org/0000-0003-3691-0324]
+
+[Term]
+id: MP:0000002
+name: obsolete Morphology
+def: "OBSOLETE." [https://orcid.org/0000-0003-3691-0324]
+synonym: "Anatomy" EXACT []
+is_obsolete: true
+
+[Term]
+id: MP:0000003
+name: abnormal adipose tissue morphology
+def: "any structural anomaly of the connective tissue composed of fat cells enmeshed in areolar tissue" [MESH:A10.165.114, MGI:cwg]
+synonym: "abnormality of adipose tissue" BROAD []
+synonym: "adipose tissue abnormalities" BROAD []
+synonym: "adipose tissue dysplasia" NARROW []
+is_a: MP:0005375 ! adipose tissue phenotype

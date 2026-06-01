@@ -1,0 +1,41 @@
+format-version: 1.4
+date: 05:03:2026 10:00
+data-version: releases/2026-03-05
+saved-by: Yasset Perez-Riverol
+default-namespace: PRIDE
+namespace-id-rule: * PRIDE:$sequence(7,0,9999999)$
+remark: URL: http://purl.obolibrary.org/obo/pride/pride_cv.obo
+ontology: pride
+
+[Term]
+id: EFO:0002755
+name: diet
+def: "The regular course of eating and drinking adopted by a person or animal." [EFO:EFO]
+
+[Term]
+id: PRIDE:0000307
+name: Quantification method
+def: "Root node for terms relating to quantification methods" [PRIDE:PRIDE]
+is_a: PRIDE:0000006 ! Experiment additional parameter
+
+[Term]
+id: PRIDE:0000309
+name: Gel-free quantification method
+def: "Describes gel-free quantification methods" [PRIDE:PRIDE]
+is_a: PRIDE:0000307 ! Quantification method
+
+[Term]
+id: PRIDE:0000312
+name: Label free
+def: "Describes label free quantification techniques" [PRIDE:PRIDE]
+synonym: "LFQ" EXACT []
+synonym: "label-free quantification" EXACT []
+xref: MS:1001834
+xref: MS:1001835
+is_a: PRIDE:0000309 ! Gel-free quantification method
+
+[Term]
+id: PRIDE:0000436
+name: Spectrum counting
+def: "Use of the number of PSMs for an identified protein as a measure of abundance. Method reviewed in PMID 22772140" [PRIDE:PRIDE]
+is_a: PRIDE:0000312 ! Label free

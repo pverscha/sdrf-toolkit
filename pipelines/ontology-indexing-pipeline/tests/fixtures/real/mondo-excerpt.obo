@@ -1,0 +1,32 @@
+format-version: 1.2
+data-version: releases/2026-03-03
+ontology: mondo
+
+[Term]
+id: MONDO:0000001
+name: disease
+def: "A disease is a disposition to undergo pathological processes that exists in an organism because of one or more disorders in that organism." [OGMS:0000031]
+synonym: "condition" EXACT [NCIT:C2991]
+synonym: "disease" EXACT [DOID:4, NCIT:C2991, Orphanet:377788]
+synonym: "disease or disorder" EXACT [NCIT:C2991]
+synonym: "disorder" EXACT [NCIT:C2991]
+synonym: "medical condition" EXACT []
+xref: DOID:4 {source="MONDO:equivalentTo", source="EFO:0000408"}
+xref: MESH:D004194 {source="MONDO:equivalentTo"}
+xref: NCIT:C2991 {source="MONDO:equivalentTo"}
+is_a: BFO:0000016 ! disposition
+
+[Term]
+id: MONDO:0000002
+name: obsolete 46,XX sex reversal
+is_obsolete: true
+replaced_by: MONDO:0009299
+
+[Term]
+id: MONDO:0005015
+name: diabetes mellitus
+synonym: "diabetes mellitus" EXACT [DOID:9351, ICD10CM:E11]
+synonym: "DM" EXACT []
+xref: DOID:9351 {source="MONDO:equivalentTo"}
+xref: EFO:0000400 {source="MONDO:equivalentTo"}
+is_a: MONDO:0000001 ! disease

@@ -128,7 +128,7 @@ describe("ValidationEngine — validateFile", () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it("reports error for unrecognized non-bracket column header", async () => {
+  it("reports warning for unrecognized non-bracket column header", async () => {
     const file: SdrfFile = {
       headers: ["source name", "INVALID HEADER"],
       rows: [{ index: 0, cells: { "source name": ["s1"], "INVALID HEADER": ["x"] } }],
@@ -137,8 +137,8 @@ describe("ValidationEngine — validateFile", () => {
       columns: [makeColDef({ name: "source name" })],
     });
     const result = await engine.validateFile(file, template);
-    const headerError = result.errors.find(e => e.columnName === "INVALID HEADER");
-    expect(headerError).toBeDefined();
+    const headerWarning = result.warnings.find(w => w.columnName === "INVALID HEADER");
+    expect(headerWarning).toBeDefined();
   });
 
   it("allows custom bracket-syntax columns without error", async () => {
@@ -169,8 +169,8 @@ describe("ValidationEngine — validateFile", () => {
       globalValidators: [{ validatorName: "trailing_whitespace_validator", params: {} }],
     });
     const result = await engine.validateFile(file, template);
-    const wsWarning = result.warnings.find(w => w.validatorName === "trailing_whitespace_validator");
-    expect(wsWarning).toBeDefined();
+    const wsError = result.errors.find(e => e.validatorName === "trailing_whitespace_validator");
+    expect(wsError).toBeDefined();
   });
 
   it("distinguishes errors vs warnings in the result", async () => {

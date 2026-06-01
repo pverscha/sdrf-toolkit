@@ -56,14 +56,14 @@ export class ValidationEngine {
       template.columns.map(c => [c.name, c])
     );
 
-    // Validate custom column headers
+    // Warn about non-standard column headers (the official validator ignores them but a warning is useful)
     for (const header of file.headers) {
       if (!columnMap.has(header) && !CUSTOM_COLUMN_PATTERN.test(header)) {
         allIssues.push({
-          level: "error",
+          level: "warning",
           message:
-            `Column "${header}" is not a valid SDRF column. ` +
-            `Custom columns must use comment[<name>], characteristics[<name>], or factor value[<name>] syntax.`,
+            `Column "${header}" is not a recognised template column. ` +
+            `Custom columns should use comment[<name>], characteristics[<name>], or factor value[<name>] syntax.`,
           validatorName: "column_header",
           columnName: header,
         });

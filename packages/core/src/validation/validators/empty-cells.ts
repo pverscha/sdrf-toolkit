@@ -13,8 +13,22 @@ export class EmptyCellsValidator implements GlobalValidator {
       .filter(c => c.requirement === "required")
       .map(c => c.name);
 
-    for (const row of file.rows) {
-      for (const columnName of requiredColumns) {
+    const presentColumns = new Set(file.headers);
+
+    for (const columnName of requiredColumns) {
+      if (!presentColumns.has(columnName)) {
+        // One error per missing required column (matches official sdrf-pipelines behaviour)
+        issues.push({
+          level: "error",
+          message: `Required column '${columnName}' is missing from the SDRF file.`,
+          validatorName: this.name,
+          columnName,
+        });
+        continue;
+      }
+
+      // Column is present — check each row for empty cells
+      for (const row of file.rows) {
         const value = (row.cells[columnName] ?? [])[0];
         if (value === undefined || value.trim() === "") {
           issues.push({

@@ -11,7 +11,7 @@ describe("ValuesValidator", () => {
   });
 
   it("rejects values not in the allowed list", async () => {
-    const v = new ValuesValidator({ values: ["male", "female"] });
+    const v = new ValuesValidator({ values: ["male", "female"], error_level: "error" });
     const result = await v.validate("unknown", makeContext());
     expect(result.valid).toBe(false);
     expect(result.issues[0].level).toBe("error");
@@ -26,7 +26,7 @@ describe("ValuesValidator", () => {
   });
 
   it("is case-sensitive when case_sensitive is true", async () => {
-    const v = new ValuesValidator({ values: ["Male"], case_sensitive: true });
+    const v = new ValuesValidator({ values: ["Male"], case_sensitive: true, error_level: "error" });
     expect((await v.validate("Male", makeContext())).valid).toBe(true);
     expect((await v.validate("male", makeContext())).valid).toBe(false);
     expect((await v.validate("MALE", makeContext())).valid).toBe(false);

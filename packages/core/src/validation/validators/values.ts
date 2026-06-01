@@ -15,7 +15,8 @@ export class ValuesValidator implements CellValidator {
   constructor(private readonly params: ValuesParams) {}
 
   async validate(value: string, context: CellValidationContext): Promise<CellValidationResult> {
-    const errorLevel = this.params.error_level ?? "error";
+    // Official sdrf-pipelines ValuesValidator defaults to "warning" when no error_level is specified
+    const errorLevel = this.params.error_level ?? "warning";
     const caseSensitive = this.params.case_sensitive ?? false;
 
     const normalize = (v: string) => (caseSensitive ? v.trim() : v.trim().toLowerCase());
